@@ -1,4 +1,4 @@
-#include <Adafruit_TinyUSB.h>
+#include <Keyboard.h>
 #include <Adafruit_NeoPixel.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -35,8 +35,7 @@
 Adafruit_NeoPixel pixels(NUM_PIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-//USB MIDI object
-Adafruit_USBD_MIDI usb_midi;
+
 
 // Key state arrays
 bool shiftState = false;
@@ -45,9 +44,6 @@ bool encoderState = false;
 bool previousEncoderState = false;
 bool keyStates[16] = { false };
 bool previousKeyStates[16] = { false };
-bool shiftPressedAtKeyDown[16] = { false };
-bool padStates[16] = { false };
-bool previousPadStates[16] = { false };
 
 // Variables for encoder handling
 volatile int encoderValue = 0;
@@ -64,7 +60,7 @@ float dimFactor = 0.1;
 void setup() {
   initHardware();
 
-  usb_midi.begin();
+  Keyboard.begin();
 
   pinMode(RX_PIN, INPUT_PULLUP);
   Serial1.begin(31250);
@@ -177,53 +173,68 @@ void checkKeys() {
 
 //Main MIDI update function
 void updateMIDI() {
-  for (int i = 0; i < 16; i++) {
-    previousPadStates[i] = padStates[i];
+  if (shiftState && !previousShiftState) {
+    Keyboard.press('k');  // press 'k'
+  } else if (!shiftState && previousShiftState) {
+    Keyboard.release('k');
   }
 
-  for (int i = 0; i < 16; i++) {  //Go through all pads
-    //Check for rising or falling edges in the keys
-    if (keyStates[i] && !previousKeyStates[i]) {  // Key is pressed
-      if (shiftState) {                           // Check if we're using a SHIFT shortcut
-        shiftPressedAtKeyDown[i] = true;
-      } else {  //Change pad state
-        shiftPressedAtKeyDown[i] = false;
-        padStates[i] = true;
-      }
-    } else if (!keyStates[i] && previousKeyStates[i]) {  // Key is released
-      if (!shiftPressedAtKeyDown[i]) {
-        padStates[i] = false;
+  for (int i = 0; i < 16; i++) {  // Go through all pads
+    // --- PRESSED ---
+    if (keyStates[i] && !previousKeyStates[i]) {
+      switch (i) {
+        case 0: Keyboard.press('0'); break;   // Jump to 0%
+        case 1: Keyboard.press('1'); break;   // Jump to 10%
+        case 2: Keyboard.press('2'); break;   // Jump to 20%
+        case 3: Keyboard.press('3'); break;   // Jump to 30%
+        case 4: Keyboard.press('4'); break;   // Jump to 40%
+        case 5: Keyboard.press('5'); break;   // Jump to 50%
+        case 6: Keyboard.press('6'); break;   // Jump to 60%
+        case 7: Keyboard.press('7'); break;   // Jump to 70%
+        case 8: Keyboard.press('8'); break;   // Jump to 80%
+        case 9: Keyboard.press('9'); break;   // Jump to 90%
+        case 10: Keyboard.press('j'); break;  // Rewind 10s
+        case 11: Keyboard.press('l'); break;  // Forward 10s
+        case 12:                              // Slow down (Shift + ,)
+          Keyboard.press(KEY_LEFT_SHIFT);
+          Keyboard.press(',');
+          break;
+        case 13:  // Speed up (Shift + .)
+          Keyboard.press(KEY_LEFT_SHIFT);
+          Keyboard.press('.');
+          break;
+        case 14: Keyboard.press('m'); break;  // Mute
+        case 15: Keyboard.press('N'); break;  // Next video (Shift+n in YT, N alone in playlist)
       }
     }
-
-    //Finally check rising or falling edges in pad playing status
-    if (padStates[i] && !previousPadStates[i]) {
-      //DO SOMETHING AT KEYDOWN
-    } else if (!padStates[i] && previousPadStates[i]) {
-      //DO SOMETHING AT KEYUP
+    // --- RELEASED ---
+    else if (!keyStates[i] && previousKeyStates[i]) {
+      switch (i) {
+        case 0: Keyboard.release('0'); break;
+        case 1: Keyboard.release('1'); break;
+        case 2: Keyboard.release('2'); break;
+        case 3: Keyboard.release('3'); break;
+        case 4: Keyboard.release('4'); break;
+        case 5: Keyboard.release('5'); break;
+        case 6: Keyboard.release('6'); break;
+        case 7: Keyboard.release('7'); break;
+        case 8: Keyboard.release('8'); break;
+        case 9: Keyboard.release('9'); break;
+        case 10: Keyboard.release('j'); break;
+        case 11: Keyboard.release('l'); break;
+        case 12:
+          Keyboard.release(',');
+          Keyboard.release(KEY_LEFT_SHIFT);
+          break;
+        case 13:
+          Keyboard.release('.');
+          Keyboard.release(KEY_LEFT_SHIFT);
+          break;
+        case 14: Keyboard.release('m'); break;
+        case 15: Keyboard.release('N'); break;
+      }
     }
   }
-}
-
-
-void sendNoteOn(int note, int velocity, int channel) {
-  if (channel < 0 || channel > 15) return;
-  uint8_t status = 0x90 | (channel);  // 0x90 is "Note On", and channel is adjusted to 0-based
-  uint8_t usb_packet[] = { status, (uint8_t)note, (uint8_t)velocity };
-  usb_midi.write(usb_packet, 3);
-  Serial1.write(status);
-  Serial1.write(note);
-  Serial1.write(velocity);
-}
-
-void sendNoteOff(int note, int velocity, int channel) {
-  if (channel < 0 || channel > 15) return;
-  uint8_t status = 0x80 | (channel);
-  uint8_t usb_packet[] = { status, (uint8_t)note, (uint8_t)velocity };
-  usb_midi.write(usb_packet, 3);
-  Serial1.write(status);
-  Serial1.write(note);
-  Serial1.write(velocity);
 }
 
 //Updating the visuals!
