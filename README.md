@@ -1,14 +1,14 @@
 # PATS MP-16 DIY kit
 This is the main repository for the PATS audio MP-16 DIY kit.
+
 You can find the manual to the MP-16 DIY kit here: https://docs.google.com/document/d/1Koq2ymRy1WZg_HTG9N3nUoAihR9oNaCTS2vanQYqxgY/
 
 # Dependencies
-To upload the code to the PATS MP-16 PCB you'll need the following board and library settings in Arduino IDE:
+The PATS MP-16 DIY kit is based on the Waveshare RP2040 Zero module.
+Add the "Raspberry Pi Pico/RP2040/RP2350" set of boards to the Arduino IDE (install it through the boards manager or get it from https://github.com/earlephilhower/arduino-pico) 
 
-First add the RP2040 set of boards to the Arduino IDE (install it through the boards manager or get it from https://github.com/earlephilhower/arduino-pico) 
-The PATS MP-16 DIY kit is based on the Waveshare RP2040 Zero module
-
-Secondly, install the following libraries through the Arduino IDE Library manager or using the GitHub repositories:
+Secondly, the firmware is dependent on the following libraries.
+Install these through the Arduino IDE Library manager or using the GitHub repositories:
 * Adafruit TinyUSB Library (https://github.com/adafruit/Adafruit_TinyUSB_Arduino)
 * Adafruit Neopixel Library (https://github.com/adafruit/Adafruit_NeoPixel)
 * Adafruit SSD1306 Library (https://github.com/adafruit/Adafruit_SSD1306) (this will also install the Adafruit GFX library when done through the library manager)
@@ -22,3 +22,5 @@ Secondly, install the following libraries through the Arduino IDE Library manage
 5. Press and hold the BOOT button on the Waveshare RP2040 Zero module and then press and release RESET, then let go of BOOT. (Your PC should now show the module as a drive connected to your computer)
 6. In the Arduino IDE, click Upload
 7. Enjoy the MP-16!
+
+Check out the manual to see how the MP-16 firmware works.
