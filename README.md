@@ -1,5 +1,6 @@
 # PATS MP-16 DIY kit
 This is the main repository for the PATS audio MP-16 DIY kit.
+You can find the manual to the MP-16 DIY kit here: https://docs.google.com/document/d/1Koq2ymRy1WZg_HTG9N3nUoAihR9oNaCTS2vanQYqxgY/
 
 # Dependencies
 To upload the code to the PATS MP-16 PCB you'll need the following board and library settings in Arduino IDE:
