@@ -1,7 +1,8 @@
 # PATS MP-16 DIY kit
-This is the main repository for the PATS audio MP-16 DIY kit.
+This is the main repository for the PATS audio MP-16 DIY kit. Check out PATS audio here: patsaudio.com
 
-You can find the manual to the MP-16 DIY kit here: https://docs.google.com/document/d/1Koq2ymRy1WZg_HTG9N3nUoAihR9oNaCTS2vanQYqxgY/
+You can find the manual to the PATS MP-16 DIY kit here: https://docs.google.com/document/d/1Koq2ymRy1WZg_HTG9N3nUoAihR9oNaCTS2vanQYqxgY/
+The manual has 3D printing and assembly instructions, as well as a description of how the main chord player firmware works.
 
 # Dependencies
 The PATS MP-16 DIY kit is based on the Waveshare RP2040 Zero module.
@@ -24,3 +25,8 @@ Install these through the Arduino IDE Library manager or using the GitHub reposi
 7. Enjoy the MP-16!
 
 Check out the manual to see how the MP-16 firmware works.
+
+# Contributing
+The PATS MP-16 firmware is still a work in progress and there's many other functions I'd like to add.
+If you feel like contributing to this project, please feel free to do so.
+If you want to PATS MP-16 DIY kit yourself, shoot me a message over on the [PATS audio Instagram](https://www.instagram.com/patsaudio/).
