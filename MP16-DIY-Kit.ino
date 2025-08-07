@@ -1,90 +1,50 @@
-#include <Adafruit_TinyUSB.h>
-#include <Adafruit_NeoPixel.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-#include <LittleFS.h>
+#include "./src/MusicTheory.h"
+#include "./src/Constants.h"
+#include "./src/Definitions.h"
+#include "./src/Hardware.h"
+#include "./src/Stored.h"
 
-// Pin Definitions
-#define SHIFT_PIN 3
-#define NEOPIXEL_PIN 2
-#define NUM_PIXELS 17
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-#define OLED_RESET -1
-#define OLED_ADDR 0x3C
-#define TX_PIN 0
-#define RX_PIN 1
-
-#define COL0_PIN 9
-#define COL1_PIN 10
-#define COL2_PIN 11
-#define COL3_PIN 12
-
-#define ROW0_PIN 13
-#define ROW1_PIN 14
-#define ROW2_PIN 15
-#define ROW3_PIN 26
-
-#define ENCODER_S 6
-#define ENCODER_A 7
-#define ENCODER_B 8
-
-
-//Pixel & Display objects
-Adafruit_NeoPixel pixels(NUM_PIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
-//USB MIDI object
-Adafruit_USBD_MIDI usb_midi;
+using namespace MusicTheory;
+using namespace Hardware;
+using namespace Stored;
 
 // Key state arrays
 bool shiftState = false;
 bool previousShiftState = false;
 bool encoderState = false;
 bool previousEncoderState = false;
-bool keyStates[16] = { false };
-bool previousKeyStates[16] = { false };
-bool shiftPressedAtKeyDown[16] = { false };
-bool padStates[16] = { false };
-bool previousPadStates[16] = { false };
-bool midiStates[16] = { false };
-bool previousMidiStates[16] = { false };
+bool keyStates[PADS_COUNT] = { false };
+bool previousKeyStates[PADS_COUNT] = { false };
+bool shiftPressedAtKeyDown[PADS_COUNT] = { false };
+bool padStates[PADS_COUNT] = { false };
+bool previousPadStates[PADS_COUNT] = { false };
+bool midiStates[PADS_COUNT] = {false};
+bool previousMidiStates[PADS_COUNT] = { false };
 
 // Variables for encoder handling
 volatile int encoderValue = 0;
 volatile int lastEncoded = 0;
 volatile int stepCounter = 0;
-const int encoderStates[16] = { 0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0 };
+const int encoderStates[PADS_COUNT] = { 0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0 };
 
-//Menu and selection indices
-int screenIndex = -1;  //Which screen is shown?
-int selectIndex = 0;   //Which variable is selected?
-int noteIndex = 0;     //Which of the 8 notes in a chord to select
-int selectedPad = 0;   //Currently selected pad
+// Menu and selection indices
+int screenIndex = -1;  // Which screen is shown?
+int selectIndex = 0;   // Which variable is selected?
+int noteIndex = 0;     // Which of the 8 notes in a chord to select
+int selectedPad = 0;   // Currently selected pad
 int slotSelect = 0;
 int copyIndex = -1;
 bool recording = false;
 
-//How much to dim the LED colors
+// How much to dim the LED colors
 float dimFactor = 0.3;
 
-//MIDI state machine enum for Serial reading
-enum MIDIState {
-  WAITING_FOR_STATUS,  // Waiting for the first byte (status byte)
-  WAITING_FOR_DATA1,   // Waiting for the first data byte (note number)
-  WAITING_FOR_DATA2    // Waiting for the second data byte (velocity)
-};
-
-//Serial Interrupt variables
+// Serial Interrupt variables
 volatile uint8_t status = 0;
 volatile uint8_t data1 = 0;
 volatile uint8_t data2 = 0;
 volatile MIDIState currentState = WAITING_FOR_STATUS;  // Start by waiting for the status byte
 volatile bool midiMessageReady = false;                // Flag to indicate when a complete message has been received
-
-
-
 
 // Integer array to track how many keys are referencing each MIDI note on each channel
 int noteCountA[128] = { 0 };
@@ -92,66 +52,12 @@ int noteCountB[128] = { 0 };
 int noteCountC[128] = { 0 };
 int noteCountD[128] = { 0 };
 
-//Global settings
-struct Settings {
-  int rootNote = 48;  // Root note (e.g., 48)
-  int scaleType = 0;  // Scale type (e.g., 0)
-  int midiRecChannel = 0;
-  int midiTrigChannel = 1;
-  int midiOutputAChannel = 0;
-  int midiOutputBChannel = 2;
-  int midiOutputCChannel = 3;
-  int midiOutputDChannel = 15;
-  bool midiThru = false;
-  bool tempoSync = true;
-  float tempo = 120;
-  float velocityScaling = 1.0;
-  int defaultVelocity = 65;
-  uint32_t shiftColor = 0xFF0000;
-  int ledBrightness = 100;
-};
-
-//Chord struct
-struct Chord {
-  int degree = 0;                    // Chord degree (e.g., 0, 1, 2, etc.)
-  int intervals[8] = { 0 };          // Intervals for the chord
-  int octaveModifiers[8] = { 0 };    // Octave modifications for each note
-  int semitoneModifiers[8] = { 0 };  // Semitone modifications for each note
-  bool isActive[8] = { false };      // Whether each note is active or not
-  int velocityModifiers[8] = { 0 };  // Velocity values for each note modifying the main pad velocity
-  unsigned long timing[8] = { 0 };   // Delay timing for each note
-  int channel[8] = { 0 };
-};
-
-//Pad settings
-struct Pad {
-  uint32_t color = 0xFFAA00;
-  int triggerNote = 0;
-  int chokeGroup = 0;
-  bool hold = false;
-  int arpType = 0;  //0 = off, 1 = up, 2 = down, 3 = both up & down, 4 = random, 5 = brownian
-  int arpSpeed = 1;
-  float arpGate = 1.0;
-  int arpOctaves = 1;
-  int padVelocity = 65;
-  int velocityVariation = 0;
-  unsigned long timingVariation = 0;
-  Chord chord;
-};
-
-Settings settings;
-Pad pads[16];
-
-#include "preset.h"
-#include "musicTheory.h"
-
-//Setup function
 void setup() {
   initHardware();
 
   usb_midi.begin();
 
-  pinMode(1, INPUT_PULLUP);
+  pinMode(RX_PIN, INPUT_PULLUP);
   Serial1.begin(31250);
 
   if (!LittleFS.begin()) {
@@ -162,10 +68,9 @@ void setup() {
     delay(1000);
   }
 
-  loadSettings();
+  load();
 }
 
-//Loop function
 void loop() {
   checkKeys();
   updateMenu();
@@ -173,152 +78,22 @@ void loop() {
   updateVisuals();
 }
 
-
-//********************************** Setup Functions ************************************
-
-//Hardware initialization for keymatrix, shift key, encoder, neopixels and OLED display
-void initHardware() {
-  pinMode(ROW0_PIN, OUTPUT);
-  pinMode(ROW1_PIN, OUTPUT);
-  pinMode(ROW2_PIN, OUTPUT);
-  pinMode(ROW3_PIN, OUTPUT);
-  pinMode(COL0_PIN, INPUT_PULLUP);
-  pinMode(COL1_PIN, INPUT_PULLUP);
-  pinMode(COL2_PIN, INPUT_PULLUP);
-  pinMode(COL3_PIN, INPUT_PULLUP);
-  pinMode(SHIFT_PIN, INPUT_PULLUP);
-  pinMode(ENCODER_S, INPUT_PULLUP);
-  pinMode(ENCODER_A, INPUT_PULLUP);
-  pinMode(ENCODER_B, INPUT_PULLUP);
-
-  attachInterrupt(digitalPinToInterrupt(ENCODER_A), updateEncoder, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(ENCODER_B), updateEncoder, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(RX_PIN), midiInterruptHandler, FALLING);
-
-  pixels.begin();
-  pixels.setBrightness(100);
-  pixels.clear();
-  pixels.show();
-
-  display.setRotation(2);
-  if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {
-    for (;;)
-      ;
-  }
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_WHITE);
-  display.display();
-}
-
-//Interrupt function for the encoder
-void updateEncoder() {
-  // Read both A and B pin states
-  int MSB = digitalRead(ENCODER_A);  // Most Significant Bit
-  int LSB = digitalRead(ENCODER_B);  // Least Significant Bit
-
-  // Create a binary representation of the state
-  int encoded = (MSB << 1) | LSB;          // Combine A and B signal states
-  int sum = (lastEncoded << 2) | encoded;  // Create a unique sum to match the state transitions
-
-  // Update step counter based on encoder state transition
-  stepCounter += encoderStates[sum];
-
-  // Check if full step (detent) is reached (4 steps per detent)
-  if (abs(stepCounter) >= 4) {
-    if (stepCounter > 0) {
-      encoderValue++;  // Clockwise rotation
-    } else {
-      encoderValue--;  // Counter-clockwise rotation
-    }
-    stepCounter = 0;  // Reset counter after full step
-  }
-
-  lastEncoded = encoded;  // Store the current state for next transition
-}
-
-void midiInterruptHandler() {
-  uint8_t incomingByte = Serial1.read();  // Read incoming byte
-
-  switch (currentState) {
-    case WAITING_FOR_STATUS:
-      if ((incomingByte >= 128 && incomingByte <= 143) || (incomingByte >= 144 && incomingByte <= 159)) {
-        status = incomingByte;
-        currentState = WAITING_FOR_DATA1;  // Next, expect data1 (note number)
-      }
-      break;
-
-    case WAITING_FOR_DATA1:
-      data1 = incomingByte;              // Store the note number
-      currentState = WAITING_FOR_DATA2;  // Next, expect data2 (velocity)
-      break;
-
-    case WAITING_FOR_DATA2:
-      data2 = incomingByte;               // Store the velocity
-      midiMessageReady = true;            // Complete message received
-      currentState = WAITING_FOR_STATUS;  // Reset to waiting for the next status byte
-      break;
-  }
-}
-
-
-//Load in all the data for the chords from flash memory, or initialize from the preset
-void loadSettings() {
-  if (!loadFromFlash(0)) {
-    // No saved data available, initialize chords from preset
-    initFromPreset();
-  }
-}
-
-//Load a memory slot from flash memory, returns true is succesful, otherwise returns false
-bool loadFromFlash(int slot) {
-  String filePath = "/slot" + String(slot) + ".txt";  // Use String for concatenation
-  File file = LittleFS.open(filePath, "r");           // Pass the constructed file path
-  if (!file) {
-    return false;
-  } else {
-    file.read((uint8_t*)&settings, sizeof(Settings));
-    file.read((uint8_t*)&pads, sizeof(pads));
-    file.close();
-    return true;
-  }
-}
-
-//initialize the chords in all pads from the preset.h file
-void initFromPreset() {
-  // Initialize the global `chords` array from the `presets` array
-  for (int i = 0; i < 16; i++) {
-    // Copy the preset chord data to the global chords array
-    for (int j = 0; j < 8; j++) {
-      pads[i].chord.intervals[j] = preset[i].intervals[j];
-      pads[i].chord.octaveModifiers[j] = preset[i].octaveModifiers[j];
-      pads[i].chord.semitoneModifiers[j] = preset[i].semitoneModifiers[j];
-      pads[i].chord.isActive[j] = preset[i].isActive[j];
-      pads[i].chord.velocityModifiers[j] = preset[i].velocityModifiers[j];
-      pads[i].chord.timing[j] = preset[i].timing[j];
-      pads[i].chord.channel[j] = preset[i].channel[j];
-    }
-    pads[i].chord.degree = preset[i].degree;  // Copy the degree value
-    pads[i].triggerNote = settings.rootNote + i;
-  }
-}
-
 // ********************************** Loop Functions ************************************
 
-//Checking all keys to update their input
+// Checking all keys to update their input
 void checkKeys() {
-  //Set all previous states to current states
+  // Set all previous states to current states
   previousShiftState = shiftState;
   previousEncoderState = encoderState;
   for (int i = 0; i < 16; i++) {
     previousKeyStates[i] = keyStates[i];
   }
 
-  //Now update all current states
+  // Now update all current states
   shiftState = !digitalRead(SHIFT_PIN);
   encoderState = !digitalRead(ENCODER_S);
 
-  //Read through the keymatrix to update key states
+  // Read through the keymatrix to update key states
   for (int row = 0; row < 4; row++) {
     digitalWrite(ROW0_PIN, row == 0 ? LOW : HIGH);
     digitalWrite(ROW1_PIN, row == 1 ? LOW : HIGH);
@@ -330,17 +105,14 @@ void checkKeys() {
       keyStates[keyIndex] = currentKeyState;
     }
   }
-  //set last row high again after scanning
+  // set last row high again after scanning
   digitalWrite(ROW3_PIN, HIGH);
 }
 
-
-
-
-//Main function to update the menu
+// Main function to update the menu
 void updateMenu() {
   switch (screenIndex) {
-    case -2:  //Load preset
+    case -2:  // Load preset
       menuLoad();
       break;
     case -1:  // Default screen
@@ -355,7 +127,7 @@ void updateMenu() {
     case 2:  // Edit Degree
       menuDegree();
       break;
-    case 3:  //Edit Active Notes
+    case 3:  // Edit Active Notes
       menuNotes();
       break;
     case 4:  // Edit Velocity Randomness
@@ -364,16 +136,16 @@ void updateMenu() {
     case 5:  // Edit Velocity
       menuVelocity();
       break;
-    case 6:  //Edit Interval Mods
+    case 6:  // Edit Interval Mods
       menuIntervals();
       break;
-    case 7:  //Edit Octave
+    case 7:  // Edit Octave
       menuOctaves();
       break;
-    case 14:  //Edit MIDI Settings
+    case 14:  // Edit MIDI Settings
       menuMidi();
       break;
-    case 15:  //Saving
+    case 15:  // Saving
       menuSave();
       break;
   }
@@ -714,7 +486,7 @@ void menuSave() {
   }
 }
 
-//Menu helper function to kill all notes in reference
+// Menu helper function to kill all notes in reference
 void killAllNotes() {
   for (int i = 0; i < 128; i++) {
     if (noteCountA[i] > 0) {
@@ -736,14 +508,14 @@ void killAllNotes() {
   }
 }
 
-//Menu helper function for updating all chord intervals after a scale change
+// Menu helper function for updating all chord intervals after a scale change
 void setAllChordIntervals() {
   for (int i = 0; i < 16; i++) {
     setChordIntervals(i);
   }
 }
 
-//Menu helper function for updating chord intervals after a scale or degree change
+// Menu helper function for updating chord intervals after a scale or degree change
 void setChordIntervals(int i) {
   for (int j = 0; j < 7; j++) {
     pads[i].chord.intervals[j] = degreeToScaleInterval(pads[i].chord.degree + chordDegrees[j], scaleIntervals[settings.scaleType], 7);
@@ -751,14 +523,14 @@ void setChordIntervals(int i) {
   pads[i].chord.intervals[7] = pads[i].chord.intervals[0];
 }
 
-//Menu helper function to calculate interval within the scale, accounting for octave shifts
+// Menu helper function to calculate interval within the scale, accounting for octave shifts
 int degreeToScaleInterval(int degree, int scale[], int scaleLength) {
   int baseDegree = degree % scaleLength;
   int octaveShift = (degree / scaleLength) * 12;
   return scale[baseDegree] + octaveShift;
 }
 
-//Save current settings to a memory slot
+// Save current settings to a memory slot
 void saveToFlash(int slot) {
   String filePath = "/slot" + String(slot) + ".txt";  // Use String for concatenation
   File file = LittleFS.open(filePath, "w");           // Pass the constructed file path
@@ -766,12 +538,12 @@ void saveToFlash(int slot) {
     Serial.println("Failed to open file for writing");
     return;
   }
-  file.write((uint8_t*)&settings, sizeof(Settings));
-  file.write((uint8_t*)&pads, sizeof(pads));
+  file.write((uint8_t *)&settings, sizeof(Settings));
+  file.write((uint8_t *)&pads, sizeof(pads));
   file.close();
 }
 
-//Main MIDI update function
+// Main MIDI update function
 void updateMIDI() {
   for (int i = 0; i < 16; i++) {
     previousMidiStates[i] = midiStates[i];
@@ -793,14 +565,13 @@ void updateMIDI() {
     processIncomingMIDI(status, data1, data2);
   }
 
-
-  if (shiftState && !previousShiftState) {  //Reset shortcut screen index is shift is pressed
+  if (shiftState && !previousShiftState) {  // Reset shortcut screen index is shift is pressed
     screenIndex = -1;
   }
 
-  for (int i = 0; i < 16; i++) {  //Go through all pads
+  for (int i = 0; i < 16; i++) {  // Go through all pads
 
-    //Check for rising or falling edges in the keys
+    // Check for rising or falling edges in the keys
     if (keyStates[i] && !previousKeyStates[i]) {  // Key is pressed
       if (shiftState) {                           // Check if we're using a SHIFT shortcut
         shiftPressedAtKeyDown[i] = true;
@@ -816,7 +587,7 @@ void updateMIDI() {
           copyIndex = -1;
         }
         screenIndex = -1;
-      } else {  //Change pad state
+      } else {  // Change pad state
         shiftPressedAtKeyDown[i] = false;
         padStates[i] = true;
         selectedPad = i;
@@ -833,7 +604,7 @@ void updateMIDI() {
       }
     }
 
-    //Check for rising and falling edges in the midiTriggers
+    // Check for rising and falling edges in the midiTriggers
     if (midiStates[i] && !previousMidiStates[i]) {
       padStates[i] = true;
     } else if (!midiStates[i] && previousMidiStates[i]) {
@@ -842,7 +613,7 @@ void updateMIDI() {
       }
     }
 
-    //Finally check rising or falling edges in pad playing status
+    // Finally check rising or falling edges in pad playing status
     if (padStates[i] && !previousPadStates[i]) {
       playChord(i);
     } else if (!padStates[i] && previousPadStates[i]) {
@@ -850,7 +621,6 @@ void updateMIDI() {
     }
   }
 }
-
 
 void processIncomingMIDI(uint8_t status, uint8_t data1, uint8_t data2) {
   uint8_t command = status & 0xF0;  // Mask out the channel bits
@@ -860,7 +630,7 @@ void processIncomingMIDI(uint8_t status, uint8_t data1, uint8_t data2) {
   }
 
   if (channel == settings.midiRecChannel && recording) {
-    //store incoming notes into a buffer for structuring into a chord later?
+    // store incoming notes into a buffer for structuring into a chord later?
   }
 
   if (channel == settings.midiTrigChannel && (command == 144 || command == 128)) {
@@ -902,22 +672,30 @@ void playNote(int pad, int j) {
   // Send NoteOff to stop any existing note in the correct channel, then increment reference count and play new note in that channel
   switch (pads[pad].chord.channel[j]) {
     case 0:
-      if (noteCountA[note] > 0) { sendNoteOff(note, velocity, settings.midiOutputAChannel); }
+      if (noteCountA[note] > 0) {
+        sendNoteOff(note, velocity, settings.midiOutputAChannel);
+      }
       noteCountA[note]++;
       sendNoteOn(note, velocity, settings.midiOutputAChannel);
       break;
     case 1:
-      if (noteCountB[note] > 0) { sendNoteOff(note, velocity, settings.midiOutputBChannel); }
+      if (noteCountB[note] > 0) {
+        sendNoteOff(note, velocity, settings.midiOutputBChannel);
+      }
       noteCountB[note]++;
       sendNoteOn(note, velocity, settings.midiOutputBChannel);
       break;
     case 2:
-      if (noteCountC[note] > 0) { sendNoteOff(note, velocity, settings.midiOutputCChannel); }
+      if (noteCountC[note] > 0) {
+        sendNoteOff(note, velocity, settings.midiOutputCChannel);
+      }
       noteCountC[note]++;
       sendNoteOn(note, velocity, settings.midiOutputCChannel);
       break;
     case 3:
-      if (noteCountD[note] > 0) { sendNoteOff(note, velocity, settings.midiOutputDChannel); }
+      if (noteCountD[note] > 0) {
+        sendNoteOff(note, velocity, settings.midiOutputDChannel);
+      }
       noteCountD[note]++;
       sendNoteOn(note, velocity, settings.midiOutputDChannel);
       break;
@@ -940,32 +718,41 @@ void stopNote(int pad, int j) {
     case 0:
       if (noteCountA[note] > 0) {
         noteCountA[note]--;
-        if (noteCountA[note] == 0) { sendNoteOff(note, 0, settings.midiOutputAChannel); }
+        if (noteCountA[note] == 0) {
+          sendNoteOff(note, 0, settings.midiOutputAChannel);
+        }
       }
       break;
     case 1:
       if (noteCountB[note] > 0) {
         noteCountB[note]--;
-        if (noteCountB[note] == 0) { sendNoteOff(note, 0, settings.midiOutputBChannel); }
+        if (noteCountB[note] == 0) {
+          sendNoteOff(note, 0, settings.midiOutputBChannel);
+        }
       }
       break;
     case 2:
       if (noteCountC[note] > 0) {
         noteCountC[note]--;
-        if (noteCountC[note] == 0) { sendNoteOff(note, 0, settings.midiOutputCChannel); }
+        if (noteCountC[note] == 0) {
+          sendNoteOff(note, 0, settings.midiOutputCChannel);
+        }
       }
       break;
     case 3:
       if (noteCountD[note] > 0) {
         noteCountD[note]--;
-        if (noteCountD[note] == 0) { sendNoteOff(note, 0, settings.midiOutputDChannel); }
+        if (noteCountD[note] == 0) {
+          sendNoteOff(note, 0, settings.midiOutputDChannel);
+        }
       }
       break;
   }
 }
 
 void sendNoteOn(int note, int velocity, int channel) {
-  if (channel < 0 || channel > 15) return;
+  if (channel < 0 || channel > 15)
+    return;
   uint8_t status = 0x90 | (channel);  // 0x90 is "Note On", and channel is adjusted to 0-based
   uint8_t usb_packet[] = { status, (uint8_t)note, (uint8_t)velocity };
   usb_midi.write(usb_packet, 3);
@@ -975,7 +762,8 @@ void sendNoteOn(int note, int velocity, int channel) {
 }
 
 void sendNoteOff(int note, int velocity, int channel) {
-  if (channel < 0 || channel > 15) return;
+  if (channel < 0 || channel > 15)
+    return;
   uint8_t status = 0x80 | (channel);
   uint8_t usb_packet[] = { status, (uint8_t)note, (uint8_t)velocity };
   usb_midi.write(usb_packet, 3);
@@ -983,7 +771,6 @@ void sendNoteOff(int note, int velocity, int channel) {
   Serial1.write(note);
   Serial1.write(velocity);
 }
-
 
 void copyPad(int target, int source) {
   pads[target].chord = pads[source].chord;
@@ -999,13 +786,13 @@ void copyPad(int target, int source) {
   delay(1000);
 }
 
-//Updating the visuals!
+// Updating the visuals!
 void updateVisuals() {
   updatePixels();
   updateDisplay();
 }
 
-//main function for updating the neopixels
+// main function for updating the neopixels
 void updatePixels() {
   pixels.clear();
 
@@ -1029,7 +816,7 @@ void updatePixels() {
   pixels.show();
 }
 
-//Helper function for dimming a pixel color into a dimmer color
+// Helper function for dimming a pixel color into a dimmer color
 uint32_t dimColor(uint32_t color, float factor) {
   // Extract the red, green, and blue components
   uint8_t red = (color >> 16) & 0xFF;   // Extract red
@@ -1046,7 +833,7 @@ uint32_t dimColor(uint32_t color, float factor) {
   return dimmedColor;
 }
 
-//Main function for updating the OLED display
+// Main function for updating the OLED display
 void updateDisplay() {
   display.clearDisplay();
   switch (screenIndex) {
@@ -1243,7 +1030,6 @@ void drawSaveScreen() {
   display.print("Save to:");
   drawSlots();
 }
-
 
 //****************** display helper functions ******************
 
