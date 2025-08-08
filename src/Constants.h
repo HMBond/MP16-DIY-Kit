@@ -28,11 +28,15 @@ constexpr int ENCODER_B = 8;
 // MIDI Constants
 constexpr int MIDI_CHANNELS = 16;
 constexpr int NOTE_COUNT = 128;
+constexpr int VELOCITY_MAX = 99;
 
 // Matrix Constants
 constexpr int ROW_COUNT = 4;
 constexpr int COL_COUNT = 4;
 constexpr int PADS_COUNT = ROW_COUNT * COL_COUNT;
+
+// Preset Constants
+constexpr int SLOT_COUNT = 4;
 
 // Define an array of chords as preset
 Chord initialPreset[16] = {{// Chord 1

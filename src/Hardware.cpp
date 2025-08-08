@@ -124,4 +124,36 @@ namespace Hardware
       break;
     }
   }
+
+  int readEncoder(int current, int itemCount)
+  {
+    if (encoderValue > 0)
+    {
+      encoderValue = 0;
+      stepCounter = 0;
+      return ((current + 1) % itemCount);
+    }
+    else if (encoderValue < 0)
+    {
+      encoderValue = 0;
+      stepCounter = 0;
+      return ((current - 1 + itemCount) % itemCount);
+    }
+  }
+
+  int readEncoderConstrained(int current, int step, int min, int max)
+  {
+    if (stepCounter > 0)
+    {
+      encoderValue = 0;
+      stepCounter = 0;
+      return constrain(current + step, min, max);
+    }
+    else if (stepCounter < 0)
+    {
+      encoderValue = 0;
+      stepCounter = 0;
+      return constrain(current - step, min, max);
+    }
+  }
 }

@@ -17,6 +17,8 @@ namespace Hardware
   void initHardware();
   void updateEncoder();
   void midiInterruptHandler();
+  int readEncoder(int current, int itemCount);
+  int readEncoderConstrained(int current, int step, int min, int max);
 }
 
 #endif

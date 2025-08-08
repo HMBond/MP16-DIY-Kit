@@ -13,25 +13,25 @@ bool shiftState = false;
 bool previousShiftState = false;
 bool encoderState = false;
 bool previousEncoderState = false;
-bool keyStates[PADS_COUNT] = { false };
-bool previousKeyStates[PADS_COUNT] = { false };
-bool shiftPressedAtKeyDown[PADS_COUNT] = { false };
-bool padStates[PADS_COUNT] = { false };
-bool previousPadStates[PADS_COUNT] = { false };
+bool keyStates[PADS_COUNT] = {false};
+bool previousKeyStates[PADS_COUNT] = {false};
+bool shiftPressedAtKeyDown[PADS_COUNT] = {false};
+bool padStates[PADS_COUNT] = {false};
+bool previousPadStates[PADS_COUNT] = {false};
 bool midiStates[PADS_COUNT] = {false};
-bool previousMidiStates[PADS_COUNT] = { false };
+bool previousMidiStates[PADS_COUNT] = {false};
 
 // Variables for encoder handling
 volatile int encoderValue = 0;
 volatile int lastEncoded = 0;
 volatile int stepCounter = 0;
-const int encoderStates[PADS_COUNT] = { 0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0 };
+const int encoderStates[PADS_COUNT] = {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
 
 // Menu and selection indices
-int screenIndex = -1;  // Which screen is shown?
-int selectIndex = 0;   // Which variable is selected?
-int noteIndex = 0;     // Which of the 8 notes in a chord to select
-int selectedPad = 0;   // Currently selected pad
+int screenIndex = -1; // Which screen is shown?
+int menuIndex = 0;  // Which menu item is selected?
+int noteIndex = 0;    // Which of the 8 notes in a chord to select
+int selectedPad = 0;  // Currently selected pad
 int slotSelect = 0;
 int copyIndex = -1;
 bool recording = false;
@@ -43,16 +43,17 @@ float dimFactor = 0.3;
 volatile uint8_t status = 0;
 volatile uint8_t data1 = 0;
 volatile uint8_t data2 = 0;
-volatile MIDIState currentState = WAITING_FOR_STATUS;  // Start by waiting for the status byte
-volatile bool midiMessageReady = false;                // Flag to indicate when a complete message has been received
+volatile MIDIState currentState = WAITING_FOR_STATUS; // Start by waiting for the status byte
+volatile bool midiMessageReady = false;               // Flag to indicate when a complete message has been received
 
 // Integer array to track how many keys are referencing each MIDI note on each channel
-int noteCountA[128] = { 0 };
-int noteCountB[128] = { 0 };
-int noteCountC[128] = { 0 };
-int noteCountD[128] = { 0 };
+int noteCountA[128] = {0};
+int noteCountB[128] = {0};
+int noteCountC[128] = {0};
+int noteCountD[128] = {0};
 
-void setup() {
+void setup()
+{
   initHardware();
 
   usb_midi.begin();
@@ -60,7 +61,8 @@ void setup() {
   pinMode(RX_PIN, INPUT_PULLUP);
   Serial1.begin(31250);
 
-  if (!LittleFS.begin()) {
+  if (!LittleFS.begin())
+  {
     display.clearDisplay();
     display.setCursor(0, 0);
     display.println("LittleFS failed");
@@ -71,7 +73,8 @@ void setup() {
   load();
 }
 
-void loop() {
+void loop()
+{
   checkKeys();
   updateMenu();
   updateMIDI();
@@ -81,11 +84,13 @@ void loop() {
 // ********************************** Loop Functions ************************************
 
 // Checking all keys to update their input
-void checkKeys() {
+void checkKeys()
+{
   // Set all previous states to current states
   previousShiftState = shiftState;
   previousEncoderState = encoderState;
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < 16; i++)
+  {
     previousKeyStates[i] = keyStates[i];
   }
 
@@ -94,13 +99,15 @@ void checkKeys() {
   encoderState = !digitalRead(ENCODER_S);
 
   // Read through the keymatrix to update key states
-  for (int row = 0; row < 4; row++) {
+  for (int row = 0; row < ROW_COUNT; row++)
+  {
     digitalWrite(ROW0_PIN, row == 0 ? LOW : HIGH);
     digitalWrite(ROW1_PIN, row == 1 ? LOW : HIGH);
     digitalWrite(ROW2_PIN, row == 2 ? LOW : HIGH);
     digitalWrite(ROW3_PIN, row == 3 ? LOW : HIGH);
-    for (int col = 0; col < 4; col++) {
-      int keyIndex = row * 4 + col;
+    for (int col = 0; col < COL_COUNT; col++)
+    {
+      int keyIndex = row * COL_COUNT + col;
       bool currentKeyState = !digitalRead(COL0_PIN + col);
       keyStates[keyIndex] = currentKeyState;
     }
@@ -110,61 +117,58 @@ void checkKeys() {
 }
 
 // Main function to update the menu
-void updateMenu() {
-  switch (screenIndex) {
-    case -2:  // Load preset
-      menuLoad();
-      break;
-    case -1:  // Default screen
-      menuDefault();
-      break;
-    case 0:  // Edit Root Note
-      menuRoot();
-      break;
-    case 1:  // Edit Scale
-      menuScale();
-      break;
-    case 2:  // Edit Degree
-      menuDegree();
-      break;
-    case 3:  // Edit Active Notes
-      menuNotes();
-      break;
-    case 4:  // Edit Velocity Randomness
-      menuVariation();
-      break;
-    case 5:  // Edit Velocity
-      menuVelocity();
-      break;
-    case 6:  // Edit Interval Mods
-      menuIntervals();
-      break;
-    case 7:  // Edit Octave
-      menuOctaves();
-      break;
-    case 14:  // Edit MIDI Settings
-      menuMidi();
-      break;
-    case 15:  // Saving
-      menuSave();
-      break;
+void updateMenu()
+{
+  switch (screenIndex)
+  {
+  case -2: // Load preset
+    menuLoad();
+    break;
+  case -1: // Default screen
+    menuDefault();
+    break;
+  case 0: // Edit Root Note
+    menuRoot();
+    break;
+  case 1: // Edit Scale
+    menuScale();
+    break;
+  case 2: // Edit Degree
+    menuDegree();
+    break;
+  case 3: // Edit Active Notes
+    menuNotes();
+    break;
+  case 4: // Edit Velocity Randomness
+    menuVariation();
+    break;
+  case 5: // Edit Velocity
+    menuVelocity();
+    break;
+  case 6: // Edit Interval Mods
+    menuIntervals();
+    break;
+  case 7: // Edit Octave
+    menuOctaves();
+    break;
+  case 14: // Edit MIDI Settings
+    menuMidi();
+    break;
+  case 15: // Saving
+    menuSave();
+    break;
   }
 }
 
-void menuLoad() {
-  if (encoderValue > 0) {
-    slotSelect = (slotSelect + 1) % 4;
-    encoderValue = 0;
-    stepCounter = 0;
-  } else if (encoderValue < 0) {
-    slotSelect = (slotSelect + 3) % 4;
-    encoderValue = 0;
-    stepCounter = 0;
-  }
-  if (encoderState && !previousEncoderState) {
+void menuLoad()
+{
+  slotSelect = readEncoder(slotSelect, SLOT_COUNT);
+  if (encoderState && !previousEncoderState)
+  {
     killAllNotes();
     screenIndex = -1;
-    if (loadFromFlash(slotSelect)) {
+    if (loadFromFlash(slotSelect))
+    {
       display.clearDisplay();
       display.setCursor(22, 28);
       display.setTextSize(1);
@@ -173,7 +177,9 @@ void menuLoad() {
       display.print(slotSelect + 1);
       display.display();
       delay(1000);
-    } else {
+    }
+    else
+    {
       display.clearDisplay();
       display.setCursor(22, 28);
       display.setTextSize(1);
@@ -185,323 +191,227 @@ void menuLoad() {
   }
 }
 
-void menuDefault() {
-  if (stepCounter > 0) {
+void menuDefault()
+{
+  // update velocity scaling factor by stepCounter instead of encoderValue
+  if (stepCounter > 0)
+  {
     settings.velocityScaling = constrain(settings.velocityScaling + 0.01, 0.05, 2.0);
     encoderValue = 0;
     stepCounter = 0;
-  } else if (stepCounter < 0) {
+  }
+  else if (stepCounter < 0)
+  {
     settings.velocityScaling = constrain(settings.velocityScaling - 0.01, 0.05, 2.0);
     encoderValue = 0;
     stepCounter = 0;
   }
-  if (encoderState && !previousEncoderState) {
+  if (encoderState && !previousEncoderState)
+  {
     screenIndex = -2;
   }
 }
 
-void menuRoot() {
-  if (encoderValue > 0) {
-    killAllNotes();
-    settings.rootNote = constrain(settings.rootNote + 1, 12, 107);
-    encoderValue = 0;
-    stepCounter = 0;
-  } else if (encoderValue < 0) {
-    killAllNotes();
-    settings.rootNote = constrain(settings.rootNote - 1, 12, 107);
-    encoderValue = 0;
-    stepCounter = 0;
-  }
+void menuRoot()
+{
+  killAllNotes();
+  settings.rootNote = readEncoderConstrained(settings.rootNote, 1, ROOT_MIN, ROOT_MAX);
 }
 
-void menuScale() {
-  if (encoderValue > 0) {
+void menuScale()
+{
+  if (encoderValue != 0)
+  {
     killAllNotes();
-    settings.scaleType = (settings.scaleType + 1) % 10;
+    settings.scaleIndex = readEncoder(settings.scaleIndex, SCALE_COUNT);
     setAllChordIntervals();
-    encoderValue = 0;
-    stepCounter = 0;
-  } else if (encoderValue < 0) {
-    killAllNotes();
-    settings.scaleType = (settings.scaleType + 9) % 10;
-    setAllChordIntervals();
-    encoderValue = 0;
-    stepCounter = 0;
   }
 }
 
-void menuDegree() {
-  if (encoderValue > 0) {
+void menuDegree()
+{
+  if (encoderValue != 0)
+  {
     killAllNotes();
-    pads[selectedPad].chord.degree = constrain(pads[selectedPad].chord.degree + 1, 0, 6);
+    pads[selectedPad].chord.degree = readEncoderConstrained(pads[selectedPad].chord.degree, 1, 0, 6);
     setChordIntervals(selectedPad);
-    encoderValue = 0;
-    stepCounter = 0;
-  } else if (encoderValue < 0) {
-    killAllNotes();
-    pads[selectedPad].chord.degree = constrain(pads[selectedPad].chord.degree - 1, 0, 6);
-    setChordIntervals(selectedPad);
-    encoderValue = 0;
-    stepCounter = 0;
   }
 }
 
-void menuNotes() {
-  if (encoderValue > 0) {
-    noteIndex = (noteIndex + 1) % 8;
-    encoderValue = 0;
-    stepCounter = 0;
-  } else if (encoderValue < 0) {
-    noteIndex = (noteIndex + 7) % 8;
-    encoderValue = 0;
-    stepCounter = 0;
-  }
-  if (encoderState && !previousEncoderState) {
+void menuNotes()
+{
+  noteIndex = readEncoder(noteIndex, CHORD_NOTE_COUNT);
+  if (encoderState && !previousEncoderState)
+  {
     killAllNotes();
     pads[selectedPad].chord.isActive[noteIndex] = !pads[selectedPad].chord.isActive[noteIndex];
   }
 }
 
-void menuVariation() {
-  if (encoderValue > 0) {
-    pads[selectedPad].velocityVariation = constrain(pads[selectedPad].velocityVariation + 1, 0, 99);
-    encoderValue = 0;
-    stepCounter = 0;
-  } else if (encoderValue < 0) {
-    pads[selectedPad].velocityVariation = constrain(pads[selectedPad].velocityVariation - 1, 0, 99);
-    encoderValue = 0;
-    stepCounter = 0;
-  }
+void menuVariation()
+{
+  pads[selectedPad].velocityVariation = readEncoderConstrained(pads[selectedPad].velocityVariation, 1, 0, VELOCITY_MAX);
 }
 
-void menuVelocity() {
-  if (selectIndex == 0) {
-    if (encoderValue > 0) {
-      noteIndex = (noteIndex + 1) % 8;
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      noteIndex = (noteIndex + 7) % 8;
-      encoderValue = 0;
-      stepCounter = 0;
+void menuVelocity()
+{
+  if (menuIndex == 0)
+  {
+    noteIndex = readEncoder(noteIndex, CHORD_NOTE_COUNT);
+    if (encoderState && !previousEncoderState)
+    {
+      menuIndex = noteIndex + 1;
     }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = noteIndex + 1;
-    }
-  } else if (selectIndex - 1 < 8) {
-    if (encoderValue > 0) {
+  }
+  else if (menuIndex - 1 < CHORD_NOTE_COUNT)
+  {
+    if (encoderValue != 0)
+    {
       killAllNotes();
-      pads[selectedPad].chord.velocityModifiers[selectIndex - 1] = constrain(pads[selectedPad].chord.velocityModifiers[selectIndex - 1] + 1, 1, 128);
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      killAllNotes();
-      pads[selectedPad].chord.velocityModifiers[selectIndex - 1] = constrain(pads[selectedPad].chord.velocityModifiers[selectIndex - 1] - 1, 1, 128);
-      encoderValue = 0;
-      stepCounter = 0;
+      readEncoderConstrained(pads[selectedPad].chord.velocityModifiers[menuIndex - 1], 1, 1, 128);
     }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = 0;
+    if (encoderState && !previousEncoderState)
+    {
+      menuIndex = 0;
     }
   }
 }
 
-void menuIntervals() {
-  if (selectIndex == 0) {
-    if (encoderValue > 0) {
-      noteIndex = (noteIndex + 1) % 8;
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      noteIndex = (noteIndex + 7) % 8;
-      encoderValue = 0;
-      stepCounter = 0;
+void menuIntervals()
+{
+  if (menuIndex == 0)
+  {
+    noteIndex = readEncoder(noteIndex, CHORD_NOTE_COUNT);
+    if (encoderState && !previousEncoderState)
+    {
+      menuIndex = noteIndex + 1;
     }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = noteIndex + 1;
-    }
-  } else if (selectIndex - 1 < 8) {
-    if (encoderValue > 0) {
+  }
+  else if (menuIndex - 1 < CHORD_NOTE_COUNT)
+  {
+    if (encoderValue != 0)
+    {
       killAllNotes();
-      pads[selectedPad].chord.semitoneModifiers[selectIndex - 1] = constrain(pads[selectedPad].chord.semitoneModifiers[selectIndex - 1] + 1, -7, 7);
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      killAllNotes();
-      pads[selectedPad].chord.semitoneModifiers[selectIndex - 1] = constrain(pads[selectedPad].chord.semitoneModifiers[selectIndex - 1] - 1, -7, 7);
-      encoderValue = 0;
-      stepCounter = 0;
+      pads[selectedPad].chord.semitoneModifiers[menuIndex - 1] =
+          readEncoderConstrained(pads[selectedPad].chord.semitoneModifiers[menuIndex - 1], 1, -7, 7);
     }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = 0;
+    if (encoderState && !previousEncoderState)
+    {
+      menuIndex = 0;
     }
   }
 }
 
-void menuOctaves() {
-  if (selectIndex == 0) {
-    if (encoderValue > 0) {
-      noteIndex = (noteIndex + 1) % 8;
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      noteIndex = (noteIndex + 7) % 8;
-      encoderValue = 0;
-      stepCounter = 0;
+void menuOctaves()
+{
+  if (menuIndex == 0)
+  {
+    noteIndex = readEncoder(noteIndex, CHORD_NOTE_COUNT);
+    if (encoderState && !previousEncoderState)
+    {
+      menuIndex = noteIndex + 1;
     }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = noteIndex + 1;
-    }
-  } else if (selectIndex - 1 < 8) {
-    if (encoderValue > 0) {
+  }
+  else if (menuIndex - 1 < CHORD_NOTE_COUNT)
+  {
+    if (encoderValue != 0)
+    {
       killAllNotes();
-      pads[selectedPad].chord.octaveModifiers[selectIndex - 1] = constrain(pads[selectedPad].chord.octaveModifiers[selectIndex - 1] + 1, -3, 3);
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      killAllNotes();
-      pads[selectedPad].chord.octaveModifiers[selectIndex - 1] = constrain(pads[selectedPad].chord.octaveModifiers[selectIndex - 1] - 1, -3, 3);
-      encoderValue = 0;
-      stepCounter = 0;
+      pads[selectedPad].chord.octaveModifiers[menuIndex - 1] =
+          readEncoderConstrained(pads[selectedPad].chord.octaveModifiers[menuIndex - 1], 1, -3, 3);
     }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = 0;
+    if (encoderState && !previousEncoderState)
+    {
+      menuIndex = 0;
     }
   }
 }
 
-void menuMidi() {
-  if (selectIndex == 0) {
-    if (encoderValue > 0) {
-      settings.midiRecChannel = (settings.midiRecChannel + 1) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      settings.midiRecChannel = (settings.midiRecChannel + 15) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = 1;
-    }
-  } else if (selectIndex == 1) {
-    if (encoderValue > 0) {
-      killAllNotes();
-      settings.midiTrigChannel = (settings.midiTrigChannel + 1) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      killAllNotes();
-      settings.midiTrigChannel = (settings.midiTrigChannel + 15) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = 2;
-    }
-  } else if (selectIndex == 2) {
-    if (encoderValue > 0) {
-      killAllNotes();
-      settings.midiOutputAChannel = (settings.midiOutputAChannel + 1) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      killAllNotes();
-      settings.midiOutputAChannel = (settings.midiOutputAChannel + 15) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = 3;
-    }
-  } else if (selectIndex == 3) {
-    if (encoderValue > 0) {
-      killAllNotes();
-      settings.midiOutputBChannel = (settings.midiOutputBChannel + 1) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      killAllNotes();
-      settings.midiOutputBChannel = (settings.midiOutputBChannel + 15) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = 4;
-    }
-  } else if (selectIndex == 4) {
-    if (encoderValue > 0) {
-      killAllNotes();
-      settings.midiOutputCChannel = (settings.midiOutputCChannel + 1) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      killAllNotes();
-      settings.midiOutputCChannel = (settings.midiOutputCChannel + 15) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = 5;
-    }
-  } else if (selectIndex == 5) {
-    if (encoderValue > 0) {
-      killAllNotes();
-      settings.midiOutputDChannel = (settings.midiOutputDChannel + 1) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    } else if (encoderValue < 0) {
-      killAllNotes();
-      settings.midiOutputDChannel = (settings.midiOutputDChannel + 15) % 16;
-      encoderValue = 0;
-      stepCounter = 0;
-    }
-    if (encoderState && !previousEncoderState) {
-      selectIndex = 0;
-    }
+// Helper function to handle MIDI channel updates
+int updateMidiChannel(int channel, int nextMenuIndex)
+{
+  if (encoderValue != 0)
+  {
+    killAllNotes();
+    channel = readEncoder(channel, MIDI_CHANNELS);
+  }
+
+  if (encoderState && !previousEncoderState)
+  {
+    menuIndex = nextMenuIndex;
+  }
+
+  return channel;
+}
+
+void menuMidi()
+{
+  switch (menuIndex)
+  {
+  case 0:
+    settings.midiRecChannel = updateMidiChannel(settings.midiRecChannel, 1);
+    break;
+
+  case 1:
+    settings.midiTrigChannel = updateMidiChannel(settings.midiTrigChannel, 2);
+    break;
+
+  case 2:
+    settings.midiOutputAChannel = updateMidiChannel(settings.midiOutputAChannel, 3);
+    break;
+
+  case 3:
+    settings.midiOutputBChannel = updateMidiChannel(settings.midiOutputBChannel, 4);
+    break;
+
+  case 4:
+    settings.midiOutputCChannel = updateMidiChannel(settings.midiOutputCChannel, 5);
+    break;
+
+  case 5:
+    settings.midiOutputDChannel = updateMidiChannel(settings.midiOutputDChannel, 0);
+    break;
   }
 }
 
 void menuSave() {
-  if (encoderValue > 0) {
-    slotSelect = (slotSelect + 1) % 4;
-    encoderValue = 0;
-    stepCounter = 0;
-  } else if (encoderValue < 0) {
-    slotSelect = (slotSelect + 3) % 4;
-    encoderValue = 0;
-    stepCounter = 0;
-  }
-  if (encoderState && !previousEncoderState) {
-    saveToFlash(slotSelect);
-    screenIndex = -1;
-    selectIndex = 0;
-    display.clearDisplay();
-    display.setCursor(22, 28);
-    display.setTextSize(1);
-    display.setTextColor(SSD1306_WHITE);
-    display.print("Settings Saved");
-    display.display();
-    delay(1000);
-  }
+    slotSelect = readEncoder(slotSelect, SLOT_COUNT);
+    if (encoderState && !previousEncoderState) {
+        saveToFlash(slotSelect);
+        screenIndex = -1;
+        menuIndex = 0;
+        display.clearDisplay();
+        display.setCursor(22, 28);
+        display.setTextSize(1);
+        display.setTextColor(SSD1306_WHITE);
+        display.print("Settings Saved");
+        display.display();
+        delay(1000);
+    }
 }
 
 // Menu helper function to kill all notes in reference
-void killAllNotes() {
-  for (int i = 0; i < 128; i++) {
-    if (noteCountA[i] > 0) {
+void killAllNotes()
+{
+  for (int i = 0; i < 128; i++)
+  {
+    if (noteCountA[i] > 0)
+    {
       sendNoteOff(i, 0, settings.midiOutputAChannel);
     }
     noteCountA[i] = 0;
-    if (noteCountB[i] > 0) {
+    if (noteCountB[i] > 0)
+    {
       sendNoteOff(i, 0, settings.midiOutputBChannel);
     }
     noteCountB[i] = 0;
-    if (noteCountC[i] > 0) {
+    if (noteCountC[i] > 0)
+    {
       sendNoteOff(i, 0, settings.midiOutputCChannel);
     }
     noteCountC[i] = 0;
-    if (noteCountD[i] > 0) {
+    if (noteCountD[i] > 0)
+    {
       sendNoteOff(i, 0, settings.midiOutputDChannel);
     }
     noteCountD[i] = 0;
@@ -509,32 +419,40 @@ void killAllNotes() {
 }
 
 // Menu helper function for updating all chord intervals after a scale change
-void setAllChordIntervals() {
-  for (int i = 0; i < 16; i++) {
+void setAllChordIntervals()
+{
+  for (int i = 0; i < 16; i++)
+  {
     setChordIntervals(i);
   }
 }
 
 // Menu helper function for updating chord intervals after a scale or degree change
-void setChordIntervals(int i) {
-  for (int j = 0; j < 7; j++) {
-    pads[i].chord.intervals[j] = degreeToScaleInterval(pads[i].chord.degree + chordDegrees[j], scaleIntervals[settings.scaleType], 7);
+void setChordIntervals(int i)
+{
+  for (int j = 0; j < 7; j++)
+  {
+    pads[i].chord.intervals[j] =
+        degreeToScaleInterval(pads[i].chord.degree + chordDegrees[j], scales[settings.scaleIndex], 7);
   }
   pads[i].chord.intervals[7] = pads[i].chord.intervals[0];
 }
 
 // Menu helper function to calculate interval within the scale, accounting for octave shifts
-int degreeToScaleInterval(int degree, int scale[], int scaleLength) {
+int degreeToScaleInterval(int degree, int scale[], int scaleLength)
+{
   int baseDegree = degree % scaleLength;
   int octaveShift = (degree / scaleLength) * 12;
   return scale[baseDegree] + octaveShift;
 }
 
 // Save current settings to a memory slot
-void saveToFlash(int slot) {
-  String filePath = "/slot" + String(slot) + ".txt";  // Use String for concatenation
-  File file = LittleFS.open(filePath, "w");           // Pass the constructed file path
-  if (!file) {
+void saveToFlash(int slot)
+{
+  String filePath = "/slot" + String(slot) + ".txt"; // Use String for concatenation
+  File file = LittleFS.open(filePath, "w");          // Pass the constructed file path
+  if (!file)
+  {
     Serial.println("Failed to open file for writing");
     return;
   }
@@ -544,59 +462,79 @@ void saveToFlash(int slot) {
 }
 
 // Main MIDI update function
-void updateMIDI() {
-  for (int i = 0; i < 16; i++) {
+void updateMIDI()
+{
+  for (int i = 0; i < 16; i++)
+  {
     previousMidiStates[i] = midiStates[i];
     previousPadStates[i] = padStates[i];
   }
 
-  if (midiMessageReady) {
-    midiMessageReady = false;  // Reset the flag
+  if (midiMessageReady)
+  {
+    midiMessageReady = false; // Reset the flag
     // Process the MIDI message (status, data1, data2)
     processIncomingMIDI(status, data1, data2);
   }
 
   // Check for incoming USB MIDI messages
-  if (usb_midi.available()) {
+  if (usb_midi.available())
+  {
     uint32_t packet = usb_midi.read();
-    uint8_t status = (packet >> 8) & 0xFF;  // Status byte
-    uint8_t data1 = (packet >> 16) & 0xFF;  // Data1 (e.g., note)
-    uint8_t data2 = (packet >> 24) & 0xFF;  // Data2 (e.g., velocity)
+    uint8_t status = (packet >> 8) & 0xFF; // Status byte
+    uint8_t data1 = (packet >> 16) & 0xFF; // Data1 (e.g., note)
+    uint8_t data2 = (packet >> 24) & 0xFF; // Data2 (e.g., velocity)
     processIncomingMIDI(status, data1, data2);
   }
 
-  if (shiftState && !previousShiftState) {  // Reset shortcut screen index is shift is pressed
+  if (shiftState && !previousShiftState)
+  { // Reset shortcut screen index is shift is pressed
     screenIndex = -1;
   }
 
-  for (int i = 0; i < 16; i++) {  // Go through all pads
+  for (int i = 0; i < 16; i++)
+  { // Go through all pads
 
     // Check for rising or falling edges in the keys
-    if (keyStates[i] && !previousKeyStates[i]) {  // Key is pressed
-      if (shiftState) {                           // Check if we're using a SHIFT shortcut
+    if (keyStates[i] && !previousKeyStates[i])
+    { // Key is pressed
+      if (shiftState)
+      { // Check if we're using a SHIFT shortcut
         shiftPressedAtKeyDown[i] = true;
         screenIndex = i;
-        if (i == 13) {
+        if (i == 13)
+        {
           copyIndex = selectedPad;
         }
-        selectIndex = 0;
-      } else if (screenIndex == 13) {  // Check whether we're copying a pad
+        menuIndex = 0;
+      }
+      else if (screenIndex == 13)
+      { // Check whether we're copying a pad
         killAllNotes();
-        if (copyIndex != -1 && copyIndex != i) {
+        if (copyIndex != -1 && copyIndex != i)
+        {
           copyPad(i, copyIndex);
           copyIndex = -1;
         }
         screenIndex = -1;
-      } else {  // Change pad state
+      }
+      else
+      { // Change pad state
         shiftPressedAtKeyDown[i] = false;
         padStates[i] = true;
         selectedPad = i;
       }
-    } else if (!keyStates[i] && previousKeyStates[i]) {  // Key is released
-      if (!shiftPressedAtKeyDown[i]) {
-        for (int j = 0; j < 8; j++) {
-          if (pads[i].chord.isActive[j]) {
-            if (!midiStates[i]) {
+    }
+    else if (!keyStates[i] && previousKeyStates[i])
+    { // Key is released
+      if (!shiftPressedAtKeyDown[i])
+      {
+        for (int j = 0; j < 8; j++)
+        {
+          if (pads[i].chord.isActive[j])
+          {
+            if (!midiStates[i])
+            {
               padStates[i] = false;
             }
           }
@@ -605,40 +543,56 @@ void updateMIDI() {
     }
 
     // Check for rising and falling edges in the midiTriggers
-    if (midiStates[i] && !previousMidiStates[i]) {
+    if (midiStates[i] && !previousMidiStates[i])
+    {
       padStates[i] = true;
-    } else if (!midiStates[i] && previousMidiStates[i]) {
-      if (!keyStates[i]) {
+    }
+    else if (!midiStates[i] && previousMidiStates[i])
+    {
+      if (!keyStates[i])
+      {
         padStates[i] = false;
       }
     }
 
     // Finally check rising or falling edges in pad playing status
-    if (padStates[i] && !previousPadStates[i]) {
+    if (padStates[i] && !previousPadStates[i])
+    {
       playChord(i);
-    } else if (!padStates[i] && previousPadStates[i]) {
+    }
+    else if (!padStates[i] && previousPadStates[i])
+    {
       stopChord(i);
     }
   }
 }
 
-void processIncomingMIDI(uint8_t status, uint8_t data1, uint8_t data2) {
-  uint8_t command = status & 0xF0;  // Mask out the channel bits
-  uint8_t channel = status & 0x0F;  // Get the channel
-  if (settings.midiThru) {
+void processIncomingMIDI(uint8_t status, uint8_t data1, uint8_t data2)
+{
+  uint8_t command = status & 0xF0; // Mask out the channel bits
+  uint8_t channel = status & 0x0F; // Get the channel
+  if (settings.midiThru)
+  {
     forwardMIDI(status, data1, data2);
   }
 
-  if (channel == settings.midiRecChannel && recording) {
+  if (channel == settings.midiRecChannel && recording)
+  {
     // store incoming notes into a buffer for structuring into a chord later?
   }
 
-  if (channel == settings.midiTrigChannel && (command == 144 || command == 128)) {
-    for (int i = 0; i < 16; i++) {
-      if (data1 == pads[i].triggerNote) {
-        if (data2 > 0 && command == 144) {
+  if (channel == settings.midiTrigChannel && (command == 144 || command == 128))
+  {
+    for (int i = 0; i < 16; i++)
+    {
+      if (data1 == pads[i].triggerNote)
+      {
+        if (data2 > 0 && command == 144)
+        {
           midiStates[i] = true;
-        } else {
+        }
+        else
+        {
           midiStates[i] = false;
         }
       }
@@ -646,9 +600,10 @@ void processIncomingMIDI(uint8_t status, uint8_t data1, uint8_t data2) {
   }
 }
 
-void forwardMIDI(uint8_t status, uint8_t data1, uint8_t data2) {
+void forwardMIDI(uint8_t status, uint8_t data1, uint8_t data2)
+{
   // Forward to USB MIDI
-  uint8_t usb_packet[] = { status, data1, data2 };
+  uint8_t usb_packet[] = {status, data1, data2};
   usb_midi.write(usb_packet, 3);
 
   // Forward to Serial MIDI
@@ -657,122 +612,147 @@ void forwardMIDI(uint8_t status, uint8_t data1, uint8_t data2) {
   Serial1.write(data2);
 }
 
-void playChord(int i) {
-  for (int j = 0; j < 8; j++) {
-    if (pads[i].chord.isActive[j]) {
+void playChord(int i)
+{
+  for (int j = 0; j < 8; j++)
+  {
+    if (pads[i].chord.isActive[j])
+    {
       playNote(i, j);
     }
   }
 }
 
-void playNote(int pad, int j) {
+void playNote(int pad, int j)
+{
   int note = settings.rootNote + pads[pad].chord.intervals[j] + (pads[pad].chord.octaveModifiers[j] * 12) + pads[pad].chord.semitoneModifiers[j];
   int velocity = constrain(settings.velocityScaling * (pads[pad].padVelocity + pads[pad].chord.velocityModifiers[j] + random(-pads[pad].velocityVariation, pads[pad].velocityVariation)), 1, 128);
 
   // Send NoteOff to stop any existing note in the correct channel, then increment reference count and play new note in that channel
-  switch (pads[pad].chord.channel[j]) {
-    case 0:
-      if (noteCountA[note] > 0) {
-        sendNoteOff(note, velocity, settings.midiOutputAChannel);
-      }
-      noteCountA[note]++;
-      sendNoteOn(note, velocity, settings.midiOutputAChannel);
-      break;
-    case 1:
-      if (noteCountB[note] > 0) {
-        sendNoteOff(note, velocity, settings.midiOutputBChannel);
-      }
-      noteCountB[note]++;
-      sendNoteOn(note, velocity, settings.midiOutputBChannel);
-      break;
-    case 2:
-      if (noteCountC[note] > 0) {
-        sendNoteOff(note, velocity, settings.midiOutputCChannel);
-      }
-      noteCountC[note]++;
-      sendNoteOn(note, velocity, settings.midiOutputCChannel);
-      break;
-    case 3:
-      if (noteCountD[note] > 0) {
-        sendNoteOff(note, velocity, settings.midiOutputDChannel);
-      }
-      noteCountD[note]++;
-      sendNoteOn(note, velocity, settings.midiOutputDChannel);
-      break;
+  switch (pads[pad].chord.channel[j])
+  {
+  case 0:
+    if (noteCountA[note] > 0)
+    {
+      sendNoteOff(note, velocity, settings.midiOutputAChannel);
+    }
+    noteCountA[note]++;
+    sendNoteOn(note, velocity, settings.midiOutputAChannel);
+    break;
+  case 1:
+    if (noteCountB[note] > 0)
+    {
+      sendNoteOff(note, velocity, settings.midiOutputBChannel);
+    }
+    noteCountB[note]++;
+    sendNoteOn(note, velocity, settings.midiOutputBChannel);
+    break;
+  case 2:
+    if (noteCountC[note] > 0)
+    {
+      sendNoteOff(note, velocity, settings.midiOutputCChannel);
+    }
+    noteCountC[note]++;
+    sendNoteOn(note, velocity, settings.midiOutputCChannel);
+    break;
+  case 3:
+    if (noteCountD[note] > 0)
+    {
+      sendNoteOff(note, velocity, settings.midiOutputDChannel);
+    }
+    noteCountD[note]++;
+    sendNoteOn(note, velocity, settings.midiOutputDChannel);
+    break;
   }
 }
 
-void stopChord(int i) {
-  for (int j = 0; j < 8; j++) {
-    if (pads[i].chord.isActive[j]) {
+void stopChord(int i)
+{
+  for (int j = 0; j < 8; j++)
+  {
+    if (pads[i].chord.isActive[j])
+    {
       stopNote(i, j);
     }
   }
 }
 
-void stopNote(int pad, int j) {
+void stopNote(int pad, int j)
+{
   int note = settings.rootNote + pads[pad].chord.intervals[j] + (pads[pad].chord.octaveModifiers[j] * 12) + pads[pad].chord.semitoneModifiers[j];
 
   // Decrement the reference count and send NoteOff if it's the last reference
-  switch (pads[pad].chord.channel[j]) {
-    case 0:
-      if (noteCountA[note] > 0) {
-        noteCountA[note]--;
-        if (noteCountA[note] == 0) {
-          sendNoteOff(note, 0, settings.midiOutputAChannel);
-        }
+  switch (pads[pad].chord.channel[j])
+  {
+  case 0:
+    if (noteCountA[note] > 0)
+    {
+      noteCountA[note]--;
+      if (noteCountA[note] == 0)
+      {
+        sendNoteOff(note, 0, settings.midiOutputAChannel);
       }
-      break;
-    case 1:
-      if (noteCountB[note] > 0) {
-        noteCountB[note]--;
-        if (noteCountB[note] == 0) {
-          sendNoteOff(note, 0, settings.midiOutputBChannel);
-        }
+    }
+    break;
+  case 1:
+    if (noteCountB[note] > 0)
+    {
+      noteCountB[note]--;
+      if (noteCountB[note] == 0)
+      {
+        sendNoteOff(note, 0, settings.midiOutputBChannel);
       }
-      break;
-    case 2:
-      if (noteCountC[note] > 0) {
-        noteCountC[note]--;
-        if (noteCountC[note] == 0) {
-          sendNoteOff(note, 0, settings.midiOutputCChannel);
-        }
+    }
+    break;
+  case 2:
+    if (noteCountC[note] > 0)
+    {
+      noteCountC[note]--;
+      if (noteCountC[note] == 0)
+      {
+        sendNoteOff(note, 0, settings.midiOutputCChannel);
       }
-      break;
-    case 3:
-      if (noteCountD[note] > 0) {
-        noteCountD[note]--;
-        if (noteCountD[note] == 0) {
-          sendNoteOff(note, 0, settings.midiOutputDChannel);
-        }
+    }
+    break;
+  case 3:
+    if (noteCountD[note] > 0)
+    {
+      noteCountD[note]--;
+      if (noteCountD[note] == 0)
+      {
+        sendNoteOff(note, 0, settings.midiOutputDChannel);
       }
-      break;
+    }
+    break;
   }
 }
 
-void sendNoteOn(int note, int velocity, int channel) {
+void sendNoteOn(int note, int velocity, int channel)
+{
   if (channel < 0 || channel > 15)
     return;
-  uint8_t status = 0x90 | (channel);  // 0x90 is "Note On", and channel is adjusted to 0-based
-  uint8_t usb_packet[] = { status, (uint8_t)note, (uint8_t)velocity };
+  uint8_t status = 0x90 | (channel); // 0x90 is "Note On", and channel is adjusted to 0-based
+  uint8_t usb_packet[] = {status, (uint8_t)note, (uint8_t)velocity};
   usb_midi.write(usb_packet, 3);
   Serial1.write(status);
   Serial1.write(note);
   Serial1.write(velocity);
 }
 
-void sendNoteOff(int note, int velocity, int channel) {
+void sendNoteOff(int note, int velocity, int channel)
+{
   if (channel < 0 || channel > 15)
     return;
   uint8_t status = 0x80 | (channel);
-  uint8_t usb_packet[] = { status, (uint8_t)note, (uint8_t)velocity };
+  uint8_t usb_packet[] = {status, (uint8_t)note, (uint8_t)velocity};
   usb_midi.write(usb_packet, 3);
   Serial1.write(status);
   Serial1.write(note);
   Serial1.write(velocity);
 }
 
-void copyPad(int target, int source) {
+void copyPad(int target, int source)
+{
   pads[target].chord = pads[source].chord;
   display.clearDisplay();
   display.setCursor(22, 28);
@@ -787,29 +767,39 @@ void copyPad(int target, int source) {
 }
 
 // Updating the visuals!
-void updateVisuals() {
+void updateVisuals()
+{
   updatePixels();
   updateDisplay();
 }
 
 // main function for updating the neopixels
-void updatePixels() {
+void updatePixels()
+{
   pixels.clear();
 
-  if (shiftState) {
-    pixels.setPixelColor(0, settings.shiftColor);  // Shift key lighting
-  } else if (screenIndex != -1) {
-    pixels.setPixelColor(0, dimColor(settings.shiftColor, dimFactor));  // Shift key lighting dimly
+  if (shiftState)
+  {
+    pixels.setPixelColor(0, settings.shiftColor); // Shift key lighting
+  }
+  else if (screenIndex != -1)
+  {
+    pixels.setPixelColor(0, dimColor(settings.shiftColor, dimFactor)); // Shift key lighting dimly
   }
 
-  for (int i = 0; i < 16; i++) {
-    if (i == selectedPad && !shiftState) {
+  for (int i = 0; i < 16; i++)
+  {
+    if (i == selectedPad && !shiftState)
+    {
       pixels.setPixelColor(i + 1, pads[i].color);
-    } else {
+    }
+    else
+    {
       pixels.setPixelColor(i + 1, dimColor(pads[i].color, dimFactor));
     }
 
-    if (keyStates[i] || midiStates[i]) {
+    if (keyStates[i] || midiStates[i])
+    {
       pixels.setPixelColor(i + 1, 0xFFFFFF);
     }
   }
@@ -817,11 +807,12 @@ void updatePixels() {
 }
 
 // Helper function for dimming a pixel color into a dimmer color
-uint32_t dimColor(uint32_t color, float factor) {
+uint32_t dimColor(uint32_t color, float factor)
+{
   // Extract the red, green, and blue components
-  uint8_t red = (color >> 16) & 0xFF;   // Extract red
-  uint8_t green = (color >> 8) & 0xFF;  // Extract green
-  uint8_t blue = color & 0xFF;          // Extract blue
+  uint8_t red = (color >> 16) & 0xFF;  // Extract red
+  uint8_t green = (color >> 8) & 0xFF; // Extract green
+  uint8_t blue = color & 0xFF;         // Extract blue
 
   // Scale each component by the factor
   red = static_cast<uint8_t>(red * factor);
@@ -834,54 +825,57 @@ uint32_t dimColor(uint32_t color, float factor) {
 }
 
 // Main function for updating the OLED display
-void updateDisplay() {
+void updateDisplay()
+{
   display.clearDisplay();
-  switch (screenIndex) {
-    case -2:
-      drawLoadScreen();
-      break;
-    case -1:
-      drawMain();
-      break;
-    case 0:
-      drawRootMenu();
-      break;
-    case 1:
-      drawScaleMenu();
-      break;
-    case 2:
-      drawDegreeMenu();
-      break;
-    case 3:
-      drawNoteMenu();
-      break;
-    case 4:
-      drawVariationMenu();
-      break;
-    case 5:
-      drawVelocityMenu();
-      break;
-    case 6:
-      drawModsMenu();
-      break;
-    case 7:
-      drawOctaveMenu();
-      break;
-    case 13:
-      drawCopyMenu();
-      break;
-    case 14:
-      drawMidiMenu();
-      break;
-    case 15:
-      drawSaveScreen();
-      break;
+  switch (screenIndex)
+  {
+  case -2:
+    drawLoadScreen();
+    break;
+  case -1:
+    drawMain();
+    break;
+  case 0:
+    drawRootMenu();
+    break;
+  case 1:
+    drawScaleMenu();
+    break;
+  case 2:
+    drawDegreeMenu();
+    break;
+  case 3:
+    drawNoteMenu();
+    break;
+  case 4:
+    drawVariationMenu();
+    break;
+  case 5:
+    drawVelocityMenu();
+    break;
+  case 6:
+    drawModsMenu();
+    break;
+  case 7:
+    drawOctaveMenu();
+    break;
+  case 13:
+    drawCopyMenu();
+    break;
+  case 14:
+    drawMidiMenu();
+    break;
+  case 15:
+    drawSaveScreen();
+    break;
   }
 
   display.display();
 }
 
-void drawLoadScreen() {
+void drawLoadScreen()
+{
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(40, 6);
@@ -889,7 +883,8 @@ void drawLoadScreen() {
   drawSlots();
 }
 
-void drawMain() {
+void drawMain()
+{
   drawSelectedPad();
   display.setCursor(66, 5);
   display.print("Degree: ");
@@ -898,7 +893,8 @@ void drawMain() {
   drawNoteVelocities(selectedPad);
 }
 
-void drawRootMenu() {
+void drawRootMenu()
+{
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(37, 28);
@@ -906,15 +902,17 @@ void drawRootMenu() {
   display.print(midiNoteNames[settings.rootNote]);
 }
 
-void drawScaleMenu() {
+void drawScaleMenu()
+{
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(18, 28);
   display.print("Scale: ");
-  display.print(scaleNames[settings.scaleType]);
+  display.print(scaleNames[settings.scaleIndex]);
 }
 
-void drawDegreeMenu() {
+void drawDegreeMenu()
+{
   drawSelectedPad();
   display.setCursor(66, 5);
   display.print("Degree: ");
@@ -924,7 +922,8 @@ void drawDegreeMenu() {
   drawNoteVelocities(selectedPad);
 }
 
-void drawNoteMenu() {
+void drawNoteMenu()
+{
   drawSelectedPad();
   display.setCursor(62, 5);
   display.print("Edit Notes");
@@ -933,7 +932,8 @@ void drawNoteMenu() {
   drawNoteSelect();
 }
 
-void drawVariationMenu() {
+void drawVariationMenu()
+{
   drawSelectedPad();
   display.setCursor(4, 28);
   display.setTextSize(1);
@@ -942,7 +942,8 @@ void drawVariationMenu() {
   display.print(pads[selectedPad].velocityVariation);
 }
 
-void drawVelocityMenu() {
+void drawVelocityMenu()
+{
   drawSelectedPad();
   display.setCursor(50, 5);
   display.print("Edit Velocity");
@@ -951,7 +952,8 @@ void drawVelocityMenu() {
   drawVelocitySelect();
 }
 
-void drawModsMenu() {
+void drawModsMenu()
+{
   drawSelectedPad();
   display.setCursor(44, 5);
   display.print("Edit Intervals");
@@ -959,7 +961,8 @@ void drawModsMenu() {
   drawModSelect();
 }
 
-void drawOctaveMenu() {
+void drawOctaveMenu()
+{
   drawSelectedPad();
   display.setCursor(50, 5);
   display.print("Edit Octaves");
@@ -969,7 +972,8 @@ void drawOctaveMenu() {
   drawVelocitySelect();
 }
 
-void drawCopyMenu() {
+void drawCopyMenu()
+{
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(31, 20);
@@ -979,7 +983,8 @@ void drawCopyMenu() {
   display.print("Select destination");
 }
 
-void drawMidiMenu() {
+void drawMidiMenu()
+{
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(5, 0);
@@ -1001,29 +1006,31 @@ void drawMidiMenu() {
   display.print("MIDI Out D:   ");
   display.println(settings.midiOutputDChannel + 1);
 
-  switch (selectIndex) {
-    case 0:
-      display.drawLine(5, 8, 124, 8, WHITE);
-      break;
-    case 1:
-      display.drawLine(5, 19, 124, 19, WHITE);
-      break;
-    case 2:
-      display.drawLine(5, 30, 124, 30, WHITE);
-      break;
-    case 3:
-      display.drawLine(5, 41, 124, 41, WHITE);
-      break;
-    case 4:
-      display.drawLine(5, 52, 124, 52, WHITE);
-      break;
-    case 5:
-      display.drawLine(5, 63, 124, 63, WHITE);
-      break;
+  switch (menuIndex)
+  {
+  case 0:
+    display.drawLine(5, 8, 124, 8, WHITE);
+    break;
+  case 1:
+    display.drawLine(5, 19, 124, 19, WHITE);
+    break;
+  case 2:
+    display.drawLine(5, 30, 124, 30, WHITE);
+    break;
+  case 3:
+    display.drawLine(5, 41, 124, 41, WHITE);
+    break;
+  case 4:
+    display.drawLine(5, 52, 124, 52, WHITE);
+    break;
+  case 5:
+    display.drawLine(5, 63, 124, 63, WHITE);
+    break;
   }
 }
 
-void drawSaveScreen() {
+void drawSaveScreen()
+{
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(40, 6);
@@ -1033,20 +1040,24 @@ void drawSaveScreen() {
 
 //****************** display helper functions ******************
 
-void drawSlots() {
+void drawSlots()
+{
   display.setTextSize(1);
   display.setTextColor(WHITE);
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++)
+  {
     display.setCursor(44, 17 + 11 * i);
     display.print("Slot ");
     display.print(i + 1);
-    if (i == slotSelect) {
+    if (i == slotSelect)
+    {
       display.drawRect(42, 15 + 11 * i, 40, 11, WHITE);
     }
   }
 }
 
-void drawSelectedPad() {
+void drawSelectedPad()
+{
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(2, 5);
@@ -1054,172 +1065,227 @@ void drawSelectedPad() {
   display.print(selectedPad + 1);
 }
 
-void drawChordNotes(int pad) {
-  for (int i = 0; i < 8; i++) {
+void drawChordNotes(int pad)
+{
+  for (int i = 0; i < 8; i++)
+  {
     int x = (i % 4) * 32;
     int y = 0;
-    if (i < 4) {
+    if (i < 4)
+    {
       y = 20;
-    } else {
+    }
+    else
+    {
       y = 42;
     }
 
     display.fillRect(x, y, 13, 17, WHITE);
     display.setTextColor(BLACK);
-    switch (i) {
-      case 0:
-        display.setCursor(x + 4, y + 1);
-        display.print("1");
-        break;
-      case 1:
-        display.setCursor(x + 4, y + 1);
-        display.print("3");
-        break;
-      case 2:
-        display.setCursor(x + 4, y + 1);
-        display.print("5");
-        break;
-      case 3:
-        display.setCursor(x + 4, y + 1);
-        display.print("7");
-        break;
-      case 4:
-        display.setCursor(x + 4, y + 1);
-        display.print("9");
-        break;
-      case 5:
-        display.setCursor(x + 1, y + 1);
-        display.print("11");
-        break;
-      case 6:
-        display.setCursor(x + 1, y + 1);
-        display.print("13");
-        break;
-      case 7:
-        display.setCursor(x + 4, y + 1);
-        display.print("B");
-        break;
+    switch (i)
+    {
+    case 0:
+      display.setCursor(x + 4, y + 1);
+      display.print("1");
+      break;
+    case 1:
+      display.setCursor(x + 4, y + 1);
+      display.print("3");
+      break;
+    case 2:
+      display.setCursor(x + 4, y + 1);
+      display.print("5");
+      break;
+    case 3:
+      display.setCursor(x + 4, y + 1);
+      display.print("7");
+      break;
+    case 4:
+      display.setCursor(x + 4, y + 1);
+      display.print("9");
+      break;
+    case 5:
+      display.setCursor(x + 1, y + 1);
+      display.print("11");
+      break;
+    case 6:
+      display.setCursor(x + 1, y + 1);
+      display.print("13");
+      break;
+    case 7:
+      display.setCursor(x + 4, y + 1);
+      display.print("B");
+      break;
     }
 
     display.setCursor(x + 1, y + 9);
-    if (pads[pad].chord.semitoneModifiers[i] != 0) {
-      if (pads[pad].chord.semitoneModifiers[i] < 0) {
+    if (pads[pad].chord.semitoneModifiers[i] != 0)
+    {
+      if (pads[pad].chord.semitoneModifiers[i] < 0)
+      {
         display.print(pads[pad].chord.semitoneModifiers[i]);
-      } else {
+      }
+      else
+      {
         display.print("+");
         display.print(pads[pad].chord.semitoneModifiers[i]);
       }
     }
 
     display.setTextColor(WHITE);
-    if (pads[pad].chord.isActive[i]) {
+    if (pads[pad].chord.isActive[i])
+    {
       display.setCursor(x + 14, y + 1);
       display.print(midiNoteNames[settings.rootNote + pads[pad].chord.intervals[i] + (pads[pad].chord.octaveModifiers[i] * 12) + pads[pad].chord.semitoneModifiers[i]]);
-    } else {
+    }
+    else
+    {
       display.setCursor(x + 14, y + 1);
       display.print("-");
     }
   }
 }
 
-void drawNoteVelocities(int pad) {
-  for (int i = 0; i < 8; i++) {
+void drawNoteVelocities(int pad)
+{
+  for (int i = 0; i < 8; i++)
+  {
     int x = (i % 4) * 32;
     int y = 0;
-    if (i < 4) {
+    if (i < 4)
+    {
       y = 20;
-    } else {
+    }
+    else
+    {
       y = 42;
     }
-    if (pads[pad].chord.isActive[i]) {
+    if (pads[pad].chord.isActive[i])
+    {
       display.setCursor(x + 14, y + 9);
       display.print((int)constrain(settings.velocityScaling * (pads[pad].padVelocity + pads[pad].chord.velocityModifiers[i]), 1, 128));
     }
   }
 }
 
-void drawNoteOctaves(int pad) {
-  for (int i = 0; i < 8; i++) {
+void drawNoteOctaves(int pad)
+{
+  for (int i = 0; i < 8; i++)
+  {
     int x = (i % 4) * 32;
     int y = 0;
-    if (i < 4) {
+    if (i < 4)
+    {
       y = 20;
-    } else {
+    }
+    else
+    {
       y = 42;
     }
 
     display.setCursor(x + 14, y + 9);
-    if (pads[pad].chord.octaveModifiers[i] < 1) {
+    if (pads[pad].chord.octaveModifiers[i] < 1)
+    {
       display.print(pads[pad].chord.octaveModifiers[i]);
-    } else {
+    }
+    else
+    {
       display.print("+");
       display.print(pads[pad].chord.octaveModifiers[i]);
     }
 
-    if (i == noteIndex) {
+    if (i == noteIndex)
+    {
       display.drawLine(x, y - 2, x + 31, y - 2, WHITE);
-      if (selectIndex - 1 == i) {
+      if (menuIndex - 1 == i)
+      {
         display.drawLine(x + 13, y + 18, x + 31, y + 18, WHITE);
         display.drawLine(x, y + 20, x + 31, y + 20, WHITE);
-      } else {
+      }
+      else
+      {
         display.drawLine(x, y + 18, x + 31, y + 18, WHITE);
       }
     }
   }
 }
 
-void drawNoteSelect() {
-  for (int i = 0; i < 8; i++) {
+void drawNoteSelect()
+{
+  for (int i = 0; i < 8; i++)
+  {
     int x = (i % 4) * 32;
     int y = 0;
-    if (i < 4) {
+    if (i < 4)
+    {
       y = 20;
-    } else {
+    }
+    else
+    {
       y = 42;
     }
-    if (i == noteIndex) {
+    if (i == noteIndex)
+    {
       display.drawLine(x, y - 2, x + 31, y - 2, WHITE);
       display.drawLine(x, y + 18, x + 31, y + 18, WHITE);
     }
   }
 }
 
-void drawVelocitySelect() {
-  for (int i = 0; i < 8; i++) {
+void drawVelocitySelect()
+{
+  for (int i = 0; i < 8; i++)
+  {
     int x = (i % 4) * 32;
     int y = 0;
-    if (i < 4) {
+    if (i < 4)
+    {
       y = 20;
-    } else {
+    }
+    else
+    {
       y = 42;
     }
-    if (i == noteIndex) {
+    if (i == noteIndex)
+    {
       display.drawLine(x, y - 2, x + 31, y - 2, WHITE);
-      if (selectIndex - 1 == i) {
+      if (menuIndex - 1 == i)
+      {
         display.drawLine(x + 13, y + 18, x + 31, y + 18, WHITE);
         display.drawLine(x, y + 20, x + 31, y + 20, WHITE);
-      } else {
+      }
+      else
+      {
         display.drawLine(x, y + 18, x + 31, y + 18, WHITE);
       }
     }
   }
 }
 
-void drawModSelect() {
-  for (int i = 0; i < 8; i++) {
+void drawModSelect()
+{
+  for (int i = 0; i < 8; i++)
+  {
     int x = (i % 4) * 32;
     int y = 0;
-    if (i < 4) {
+    if (i < 4)
+    {
       y = 20;
-    } else {
+    }
+    else
+    {
       y = 42;
     }
-    if (i == noteIndex) {
+    if (i == noteIndex)
+    {
       display.drawLine(x, y - 2, x + 31, y - 2, WHITE);
-      if (selectIndex - 1 == i) {
+      if (menuIndex - 1 == i)
+      {
         display.drawLine(x, y + 18, x + 12, y + 18, WHITE);
         display.drawLine(x, y + 20, x + 31, y + 20, WHITE);
-      } else {
+      }
+      else
+      {
         display.drawLine(x, y + 18, x + 31, y + 18, WHITE);
       }
     }

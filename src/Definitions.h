@@ -6,8 +6,8 @@
 // Global settings
 struct Settings
 {
-  int rootNote = 48; // Root note (e.g., 48)
-  int scaleType = 0; // Scale type (e.g., 0)
+  int rootNote = 48;
+  int scaleIndex = 0;
   int midiRecChannel = 0;
   int midiTrigChannel = 1;
   int midiOutputAChannel = 0;
@@ -26,7 +26,7 @@ struct Settings
 // Chord struct
 struct Chord
 {
-  int degree = 0;                 // Chord degree (e.g., 0, 1, 2, etc.)
+  int degree = 0;                 // Chord degree
   int intervals[8] = {0};         // Intervals for the chord
   int octaveModifiers[8] = {0};   // Octave modifications for each note
   int semitoneModifiers[8] = {0}; // Semitone modifications for each note
