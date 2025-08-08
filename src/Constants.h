@@ -39,7 +39,7 @@ constexpr int PADS_COUNT = ROW_COUNT * COL_COUNT;
 constexpr int SLOT_COUNT = 4;
 
 // Define an array of chords as preset
-Chord initialPreset[16] = {{// Chord 1
+const Chord initialPreset[16] = {{// Chord 1
                             .degree = 0,
                             .intervals = {0, 4, 7, 11, 14, 17, 21, 0},
                             .octaveModifiers = {0, 1, 0, 0, 0, 0, 0, -1},

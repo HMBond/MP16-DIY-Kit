@@ -70,7 +70,7 @@ void setup()
     delay(1000);
   }
 
-  load();
+  Stored::load();
 }
 
 void loop()
@@ -167,7 +167,7 @@ void menuLoad()
   {
     killAllNotes();
     screenIndex = -1;
-    if (loadFromFlash(slotSelect))
+    if (Stored::loadFromFlash(slotSelect))
     {
       display.clearDisplay();
       display.setCursor(22, 28);
@@ -456,7 +456,7 @@ void saveToFlash(int slot)
     Serial.println("Failed to open file for writing");
     return;
   }
-  file.write((uint8_t *)&settings, sizeof(Settings));
+  file.write((uint8_t *)&settings, sizeof(settings));
   file.write((uint8_t *)&pads, sizeof(pads));
   file.close();
 }

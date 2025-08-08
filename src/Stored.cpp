@@ -1,12 +1,13 @@
 #include <LittleFS.h>
 #include "Constants.h"
 #include "Definitions.h"
+#include "Stored.h"
 
 namespace Stored
 {
   Settings settings;
   Pad pads[PADS_COUNT];
-
+  
   // Load a memory slot from flash memory, returns true is successful, otherwise returns false
   bool loadFromFlash(int slot)
   {
@@ -28,8 +29,8 @@ namespace Stored
   // initialize the chords in all pads from the preset.h file
   void initFromPreset()
   {
-    // Initialize the global `chords` array from the `presets` array
-    for (int i = 0; i < 16; i++)
+        // Initialize the global `chords` array from the `presets` array
+        for (int i = 0; i < 16; i++)
     {
       // Copy the preset chord data to the global chords array
       for (int j = 0; j < 8; j++)

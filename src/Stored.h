@@ -7,10 +7,10 @@
 
 namespace Stored
 {
-  Settings settings;
-  Pad pads[PADS_COUNT];
+  extern Settings settings;
+  extern Pad pads[PADS_COUNT];
 
-  // Load in all the data for the chords from flash memory, or initialize from the Stored
+  // Load in all the data for the chords from flash memory, or initialize from the preset
   void load();
   bool loadFromFlash(int slot);
   void initFromPreset();

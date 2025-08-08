@@ -139,6 +139,7 @@ namespace Hardware
       stepCounter = 0;
       return ((current - 1 + itemCount) % itemCount);
     }
+    return current;
   }
 
   int readEncoderConstrained(int current, int step, int min, int max)
@@ -155,5 +156,6 @@ namespace Hardware
       stepCounter = 0;
       return constrain(current - step, min, max);
     }
+    return current;
   }
 }
