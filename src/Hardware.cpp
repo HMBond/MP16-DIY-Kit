@@ -18,7 +18,7 @@ namespace Hardware
   volatile int encoderValue = 0;
   volatile int lastEncoded = 0;
   volatile int stepCounter = 0;
-  const int encoderStates[PADS_COUNT] = {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
+  int encoderStates[PADS_COUNT] = {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
 
   // Serial Interrupt variables
   volatile uint8_t status = 0;
@@ -65,6 +65,8 @@ namespace Hardware
     display.setTextSize(1);
     display.setTextColor(SSD1306_WHITE);
     display.display();
+
+    usb_midi.begin();
   }
 
   // Interrupt function for the encoder
@@ -131,26 +133,26 @@ namespace Hardware
     {
       encoderValue = 0;
       stepCounter = 0;
-      return ((current + 1) % itemCount);
+      return (current + 1) % itemCount;
     }
-    else if (encoderValue < 0)
+    if (encoderValue < 0)
     {
       encoderValue = 0;
       stepCounter = 0;
-      return ((current - 1 + itemCount) % itemCount);
+      return (current - 1 + itemCount) % itemCount;
     }
     return current;
   }
 
   int readEncoderConstrained(int current, int step, int min, int max)
   {
-    if (stepCounter > 0)
+    if (encoderValue > 0)
     {
       encoderValue = 0;
       stepCounter = 0;
       return constrain(current + step, min, max);
     }
-    else if (stepCounter < 0)
+    if (encoderValue < 0)
     {
       encoderValue = 0;
       stepCounter = 0;

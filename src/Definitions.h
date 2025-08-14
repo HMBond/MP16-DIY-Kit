@@ -33,7 +33,7 @@ struct Chord
   bool isActive[8] = {false};     // Whether each note is active or not
   int velocityModifiers[8] = {0}; // Velocity values for each note modifying the main pad velocity
   unsigned long timing[8] = {0};  // Delay timing for each note
-  int channel[8] = {0};
+  int channel[8] = {0};           // MIDI channel for each note
 };
 
 // Pad settings
