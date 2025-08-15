@@ -177,7 +177,7 @@ void menuLoad()
 
 void menuDefault()
 {
-  settings.velocityScaling = readEncoderFast(settings.velocityScaling, 0.01, 0.05, 2.0);
+  settings.velocityScaling = readEncoderFast(settings.velocityScaling, 0.01, 0.015625, 2.0);
   if (encoderState && !previousEncoderState)
   {
     screenIndex = -2;
