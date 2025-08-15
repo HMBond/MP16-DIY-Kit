@@ -196,6 +196,7 @@ void drawNoteBlockSelector(int noteIndex)
 
     if (i == noteIndex)
     {
+      display.fillRect(x, y, 13, 17, INVERSE);
       display.drawLine(x, y - 2, x + 31, y - 2, WHITE);
       display.drawLine(x, y + 18, x + 31, y + 18, WHITE);
     }
@@ -211,6 +212,7 @@ void drawNoteOffsetSelector(int noteIndex, int menuIndex)
 
     if (i == noteIndex)
     {
+      display.fillRect(x, y, 13, 17, INVERSE);
       display.drawLine(x, y - 2, x + 31, y - 2, WHITE);
       if (menuIndex - 1 == i)
       {
@@ -234,6 +236,7 @@ void drawOctaveSelector(int noteIndex, int menuIndex)
 
     if (i == noteIndex)
     {
+      display.fillRect(x, y, 13, 17, INVERSE);
       display.drawLine(x, y - 2, x + 31, y - 2, WHITE);
       if (menuIndex - 1 == i)
       {
