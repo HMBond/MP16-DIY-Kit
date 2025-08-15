@@ -4,16 +4,16 @@ namespace MusicTheory
 {
   // Array of scale names, each shortened to 8 characters
   const char *scaleNames[SCALE_COUNT] = {
-      "Major",     // Major (Ionian)
-      "MinNatur",  // Natural Minor (Aeolian)
-      "Dorian",    // Dorian
-      "Phrygian",  // Phrygian
-      "Lydian",    // Lydian
-      "Mixolydi",  // Mixolydian
-      "Locrian",   // Locrian
-      "WholeTon",  // Whole Tone
-      "HarmonMin", // Harmonic Minor
-      "PhrygDom"   // Phrygian Dominant
+      "Major",              // Major (Ionian)
+      "Natural Minor",      // Natural Minor (Aeolian)
+      "Dorian",             // Dorian
+      "Phrygian",           // Phrygian
+      "Lydian",             // Lydian
+      "Mixolydian",         // Mixolydian
+      "Locrian",            // Locrian
+      "Whole Tone",         // Whole Tone
+      "Harmonic Minor",     // Harmonic Minor
+      "Phrygian Dominant"   // Phrygian Dominant
   };
 
   // Array of scales (in semitones)

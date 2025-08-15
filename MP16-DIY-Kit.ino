@@ -108,8 +108,8 @@ void updateMenu()
   case -2: // Load preset
     menuLoad();
     break;
-  case -1: // Default screen
-    menuDefault();
+  case -1: // Main screen
+    menuMain();
     break;
   case 0: // Edit Root Note
     menuRoot();
@@ -130,7 +130,7 @@ void updateMenu()
     menuVelocity();
     break;
   case 6: // Edit Interval Mods
-    menuIntervals();
+    menuNoteOffset();
     break;
   case 7: // Edit Octave
     menuOctaves();
@@ -155,8 +155,6 @@ void menuLoad()
     {
       display.clearDisplay();
       display.setCursor(22, 28);
-      display.setTextSize(1);
-      display.setTextColor(WHITE);
       display.print("Loaded Slot ");
       display.print(slotSelect + 1);
       display.display();
@@ -166,8 +164,6 @@ void menuLoad()
     {
       display.clearDisplay();
       display.setCursor(22, 28);
-      display.setTextSize(1);
-      display.setTextColor(WHITE);
       display.print("Loading Failed");
       display.display();
       delay(1000);
@@ -175,7 +171,7 @@ void menuLoad()
   }
 }
 
-void menuDefault()
+void menuMain()
 {
   settings.velocityScaling = readEncoderFast(settings.velocityScaling, 0.01, 0.015625, 2.0);
   if (encoderState && !previousEncoderState)
@@ -249,7 +245,7 @@ void menuVelocity()
   }
 }
 
-void menuIntervals()
+void menuNoteOffset()
 {
   if (menuIndex == 0)
   {
@@ -264,8 +260,8 @@ void menuIntervals()
     if (encoderValue != 0)
     {
       killAllNotes();
-      pads[selectedPad].chord.semitoneModifiers[menuIndex - 1] =
-          readEncoderConstrained(pads[selectedPad].chord.semitoneModifiers[menuIndex - 1], 1, -7, 7);
+      int& semitoneModifier = pads[selectedPad].chord.semitoneModifiers[menuIndex - 1];
+      semitoneModifier = readEncoderConstrained(semitoneModifier, 1, -7, 7);
     }
     if (encoderState && !previousEncoderState)
     {
@@ -354,8 +350,6 @@ void menuSave()
     menuIndex = 0;
     display.clearDisplay();
     display.setCursor(22, 28);
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
     display.print("Settings Saved");
     display.display();
     delay(1000);

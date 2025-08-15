@@ -12,17 +12,15 @@ namespace Display
 {
   void drawLoadScreen(int slotSelect)
   {
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
-    display.setCursor(40, 6);
+    display.setCursor(40, 0);
     display.print("Load:");
     drawSlots(slotSelect);
   }
 
-  void drawMain(int selectedPad)
+  void drawMainMenu(int selectedPad)
   {
     drawSelectedPad(selectedPad);
-    display.setCursor(66, 5);
+    display.setCursor(66, 0);
     display.print("Degree: ");
     display.print(pads[selectedPad].chord.degree + 1);
     drawChordNotes(selectedPad);
@@ -31,49 +29,41 @@ namespace Display
 
   void drawRootMenu()
   {
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
-    display.setCursor(37, 28);
-    display.print("Root: ");
-    display.print(midiNoteNames[settings.rootNote]);
+    displayCentered("Root", 16);
+    display.drawLine(10, 28, 118, 28, WHITE);
+    displayCentered(midiNoteNames[settings.rootNote], 34);
   }
 
   void drawScaleMenu()
   {
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
-    display.setCursor(18, 28);
-    display.print("Scale: ");
-    display.print(scaleNames[settings.scaleIndex]);
+    displayCentered("Scale", 16);
+    display.drawLine(10, 28, 118, 28, WHITE);
+    displayCentered(scaleNames[settings.scaleIndex], 34);
   }
 
   void drawDegreeMenu(int selectedPad)
   {
     drawSelectedPad(selectedPad);
-    display.setCursor(66, 5);
+    display.setCursor(66, 0);
     display.print("Degree: ");
     display.print(pads[selectedPad].chord.degree + 1);
-    display.drawLine(66, 14, 120, 14, WHITE);
+    display.drawLine(66, 11, 120, 11, WHITE);
     drawChordNotes(selectedPad);
-    drawNoteVelocities(selectedPad);
   }
 
   void drawNoteMenu(int selectedPad, int noteIndex)
   {
     drawSelectedPad(selectedPad);
-    display.setCursor(62, 5);
-    display.print("Edit Notes");
+    display.setCursor(60, 0);
+    display.print("Note ON/OFF");
     drawChordNotes(selectedPad);
-    drawNoteVelocities(selectedPad);
-    drawNoteSelect(noteIndex);
+    drawNoteBlockSelector(noteIndex);
   }
 
   void drawVariationMenu(int selectedPad)
   {
     drawSelectedPad(selectedPad);
     display.setCursor(4, 28);
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
     display.print("Velocity Random: ");
     display.print(pads[selectedPad].velocityVariation);
   }
@@ -81,37 +71,34 @@ namespace Display
   void drawVelocityMenu(int selectedPad, int noteIndex, int menuIndex)
   {
     drawSelectedPad(selectedPad);
-    display.setCursor(50, 5);
-    display.print("Edit Velocity");
+    display.setCursor(50, 0);
+    display.print("Note Velocity");
     drawChordNotes(selectedPad);
     drawNoteVelocities(selectedPad);
-    drawVelocitySelect(noteIndex, menuIndex);
+    drawOctaveSelector(noteIndex, menuIndex);
   }
 
-  void drawModsMenu(int selectedPad, int noteIndex, int menuIndex)
+  void drawNoteOffsetMenu(int selectedPad, int noteIndex, int menuIndex)
   {
     drawSelectedPad(selectedPad);
-    display.setCursor(44, 5);
-    display.print("Edit Intervals");
-    drawChordNotes(selectedPad);
-    drawModSelect(noteIndex, menuIndex);
+    display.setCursor(62, 0);
+    display.print("Note Offset");
+    drawChordNotes(selectedPad, true);
+    drawNoteOffsetSelector(noteIndex, menuIndex);
   }
 
   void drawOctaveMenu(int selectedPad, int noteIndex, int menuIndex)
   {
     drawSelectedPad(selectedPad);
-    display.setCursor(50, 5);
-    display.print("Edit Octaves");
+    display.setCursor(46, 0);
+    display.print("Octave Offset");
     drawChordNotes(selectedPad);
     drawNoteOctaves(selectedPad, noteIndex, menuIndex);
-    drawNoteVelocities(selectedPad);
-    drawVelocitySelect(noteIndex, menuIndex);
+    drawOctaveSelector(noteIndex, menuIndex);
   }
 
   void drawCopyMenu(int selectedPad)
   {
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
     display.setCursor(31, 20);
     display.print("Copy pad ");
     display.print(selectedPad + 1);
@@ -121,24 +108,22 @@ namespace Display
 
   void drawMidiMenu(int menuIndex)
   {
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
     display.setCursor(5, 0);
     display.print("MIDI In Rec:  ");
     display.println(settings.midiRecChannel + 1);
-    display.setCursor(5, 11);
+    display.setCursor(5, 10);
     display.print("MIDI In Trig: ");
     display.println(settings.midiTrigChannel + 1);
-    display.setCursor(5, 22);
+    display.setCursor(5, 20);
     display.print("MIDI Out A:   ");
     display.println(settings.midiOutputAChannel + 1);
-    display.setCursor(5, 33);
+    display.setCursor(5, 30);
     display.print("MIDI Out B:   ");
     display.println(settings.midiOutputBChannel + 1);
-    display.setCursor(5, 44);
+    display.setCursor(5, 40);
     display.print("MIDI Out C:   ");
     display.println(settings.midiOutputCChannel + 1);
-    display.setCursor(5, 55);
+    display.setCursor(5, 50);
     display.print("MIDI Out D:   ");
     display.println(settings.midiOutputDChannel + 1);
 
@@ -148,28 +133,26 @@ namespace Display
       display.drawLine(5, 8, 124, 8, WHITE);
       break;
     case 1:
-      display.drawLine(5, 19, 124, 19, WHITE);
+      display.drawLine(5, 18, 124, 18, WHITE);
       break;
     case 2:
-      display.drawLine(5, 30, 124, 30, WHITE);
+      display.drawLine(5, 28, 124, 28, WHITE);
       break;
     case 3:
-      display.drawLine(5, 41, 124, 41, WHITE);
+      display.drawLine(5, 38, 124, 38, WHITE);
       break;
     case 4:
-      display.drawLine(5, 52, 124, 52, WHITE);
+      display.drawLine(5, 48, 124, 48, WHITE);
       break;
     case 5:
-      display.drawLine(5, 63, 124, 63, WHITE);
+      display.drawLine(5, 58, 124, 58, WHITE);
       break;
     }
   }
 
   void drawSaveScreen(int slotSelect)
   {
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
-    display.setCursor(40, 6);
+    display.setCursor(40, 0);
     display.print("Save to:");
     drawSlots(slotSelect);
   }
@@ -184,7 +167,7 @@ namespace Display
       drawLoadScreen(slotSelect);
       break;
     case -1:
-      drawMain(selectedPad);
+      drawMainMenu(selectedPad);
       break;
     case 0:
       drawRootMenu();
@@ -205,7 +188,7 @@ namespace Display
       drawVelocityMenu(selectedPad, noteIndex, menuIndex);
       break;
     case 6:
-      drawModsMenu(selectedPad, noteIndex, menuIndex);
+      drawNoteOffsetMenu(selectedPad, noteIndex, menuIndex);
       break;
     case 7:
       drawOctaveMenu(selectedPad, noteIndex, menuIndex);
@@ -237,8 +220,6 @@ namespace Display
   {
     display.clearDisplay();
     display.setCursor(22, 28);
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
     display.print("Copied ");
     display.print(source + 1);
     display.print(" to ");
