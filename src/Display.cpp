@@ -238,7 +238,7 @@ namespace Display
     display.clearDisplay();
     display.setCursor(22, 28);
     display.setTextSize(1);
-    display.setTextColor(SSD1306_WHITE);
+    display.setTextColor(WHITE);
     display.print("Copied ");
     display.print(source + 1);
     display.print(" to ");

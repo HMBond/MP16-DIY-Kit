@@ -25,7 +25,7 @@ bool previousMidiStates[PADS_COUNT] = {false};
 
 // Menu and selection indices
 int screenIndex = -1; // Which screen is shown?
-int menuIndex = 0;  // Which menu item is selected?
+int menuIndex = 0;    // Which menu item is selected?
 int noteIndex = 0;    // Which of the 8 notes in a chord to select
 int selectedPad = 0;  // Currently selected pad
 int slotSelect = 0;
@@ -73,7 +73,7 @@ void checkKeys()
   // Set all previous states to current states
   previousShiftState = shiftState;
   previousEncoderState = encoderState;
-  for (int i = 0; i < 16; i++)
+  for (int i = 0; i < PADS_COUNT; i++)
   {
     previousKeyStates[i] = keyStates[i];
   }
@@ -156,7 +156,7 @@ void menuLoad()
       display.clearDisplay();
       display.setCursor(22, 28);
       display.setTextSize(1);
-      display.setTextColor(SSD1306_WHITE);
+      display.setTextColor(WHITE);
       display.print("Loaded Slot ");
       display.print(slotSelect + 1);
       display.display();
@@ -167,7 +167,7 @@ void menuLoad()
       display.clearDisplay();
       display.setCursor(22, 28);
       display.setTextSize(1);
-      display.setTextColor(SSD1306_WHITE);
+      display.setTextColor(WHITE);
       display.print("Loading Failed");
       display.display();
       delay(1000);
@@ -177,19 +177,7 @@ void menuLoad()
 
 void menuDefault()
 {
-  // update velocity scaling factor by stepCounter instead of encoderValue
-  if (stepCounter > 0)
-  {
-    settings.velocityScaling = constrain(settings.velocityScaling + 0.01, 0.05, 2.0);
-    encoderValue = 0;
-    stepCounter = 0;
-  }
-  else if (stepCounter < 0)
-  {
-    settings.velocityScaling = constrain(settings.velocityScaling - 0.01, 0.05, 2.0);
-    encoderValue = 0;
-    stepCounter = 0;
-  }
+  settings.velocityScaling = readEncoderFast(settings.velocityScaling, 0.01, 0.05, 2.0);
   if (encoderState && !previousEncoderState)
   {
     screenIndex = -2;
@@ -312,66 +300,66 @@ void menuOctaves()
 }
 
 // Helper function to handle MIDI channel updates
-int updateMidiChannel(int channel, int nextMenuIndex)
+int updateMidiChannel(int channel)
 {
   if (encoderValue != 0)
   {
     killAllNotes();
-    channel = readEncoder(channel, MIDI_CHANNELS);
+    return readEncoder(channel, MIDI_CHANNELS);
   }
-
-  if (encoderState && !previousEncoderState)
-  {
-    menuIndex = nextMenuIndex;
-  }
-
   return channel;
 }
 
 void menuMidi()
 {
+  if (encoderState && !previousEncoderState)
+  {
+    menuIndex = (menuIndex + 1) % 6;
+  }
   switch (menuIndex)
   {
   case 0:
-    settings.midiRecChannel = updateMidiChannel(settings.midiRecChannel, 1);
+    settings.midiRecChannel = updateMidiChannel(settings.midiRecChannel);
     break;
 
   case 1:
-    settings.midiTrigChannel = updateMidiChannel(settings.midiTrigChannel, 2);
+    settings.midiTrigChannel = updateMidiChannel(settings.midiTrigChannel);
     break;
 
   case 2:
-    settings.midiOutputAChannel = updateMidiChannel(settings.midiOutputAChannel, 3);
+    settings.midiOutputAChannel = updateMidiChannel(settings.midiOutputAChannel);
     break;
 
   case 3:
-    settings.midiOutputBChannel = updateMidiChannel(settings.midiOutputBChannel, 4);
+    settings.midiOutputBChannel = updateMidiChannel(settings.midiOutputBChannel);
     break;
 
   case 4:
-    settings.midiOutputCChannel = updateMidiChannel(settings.midiOutputCChannel, 5);
+    settings.midiOutputCChannel = updateMidiChannel(settings.midiOutputCChannel);
     break;
 
   case 5:
-    settings.midiOutputDChannel = updateMidiChannel(settings.midiOutputDChannel, 0);
+    settings.midiOutputDChannel = updateMidiChannel(settings.midiOutputDChannel);
     break;
   }
 }
 
-void menuSave() {
-    slotSelect = readEncoder(slotSelect, SLOT_COUNT);
-    if (encoderState && !previousEncoderState) {
-        saveToFlash(slotSelect);
-        screenIndex = -1;
-        menuIndex = 0;
-        display.clearDisplay();
-        display.setCursor(22, 28);
-        display.setTextSize(1);
-        display.setTextColor(SSD1306_WHITE);
-        display.print("Settings Saved");
-        display.display();
-        delay(1000);
-    }
+void menuSave()
+{
+  slotSelect = readEncoder(slotSelect, SLOT_COUNT);
+  if (encoderState && !previousEncoderState)
+  {
+    saveToFlash(slotSelect);
+    screenIndex = -1;
+    menuIndex = 0;
+    display.clearDisplay();
+    display.setCursor(22, 28);
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.print("Settings Saved");
+    display.display();
+    delay(1000);
+  }
 }
 
 // Menu helper function to kill all notes in reference
@@ -405,7 +393,7 @@ void killAllNotes()
 // Menu helper function for updating all chord intervals after a scale change
 void setAllChordIntervals()
 {
-  for (int i = 0; i < 16; i++)
+  for (int i = 0; i < PADS_COUNT; i++)
   {
     setChordIntervals(i);
   }
@@ -448,7 +436,7 @@ void saveToFlash(int slot)
 // Main MIDI update function
 void updateMIDI()
 {
-  for (int i = 0; i < 16; i++)
+  for (int i = 0; i < PADS_COUNT; i++)
   {
     previousMidiStates[i] = midiStates[i];
     previousPadStates[i] = padStates[i];
@@ -476,7 +464,7 @@ void updateMIDI()
     screenIndex = -1;
   }
 
-  for (int i = 0; i < 16; i++)
+  for (int i = 0; i < PADS_COUNT; i++)
   { // Go through all pads
 
     // Check for rising or falling edges in the keys
@@ -567,7 +555,7 @@ void processIncomingMIDI(uint8_t status, uint8_t data1, uint8_t data2)
 
   if (channel == settings.midiTrigChannel && (command == 144 || command == 128))
   {
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < PADS_COUNT; i++)
     {
       if (data1 == pads[i].triggerNote)
       {
@@ -755,7 +743,7 @@ void updatePixels()
     pixels.setPixelColor(0, dimColor(settings.shiftColor, dimFactor)); // Shift key lighting dimly
   }
 
-  for (int i = 0; i < 16; i++)
+  for (int i = 0; i < PADS_COUNT; i++)
   {
     if (i == selectedPad && !shiftState)
     {

@@ -7,7 +7,6 @@
 #include <Adafruit_TinyUSB.h>
 #include <Adafruit_GFX.h>
 #include <Wire.h>
-#include "Constants.h"
 #include "Definitions.h"
 
 namespace Hardware
@@ -20,7 +19,6 @@ namespace Hardware
   extern volatile int encoderValue;
   extern volatile int lastEncoded;
   extern volatile int stepCounter;
-  extern int encoderStates[PADS_COUNT];
 
   // Serial Interrupt variables
   extern volatile uint8_t status;
@@ -34,6 +32,7 @@ namespace Hardware
   void midiInterruptHandler();
   int readEncoder(int current, int itemCount);
   int readEncoderConstrained(int current, int step, int min, int max);
+  float readEncoderFast(float current, float step, float min, float max);
 }
 
 #endif

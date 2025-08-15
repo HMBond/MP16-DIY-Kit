@@ -25,6 +25,10 @@ constexpr int ENCODER_S = 6;
 constexpr int ENCODER_A = 7;
 constexpr int ENCODER_B = 8;
 
+// Encoder
+constexpr int ENCODER_DETENT_STEPS = 4;
+constexpr int ENCODER_FAST_FACTOR = 4;
+
 // MIDI Constants
 constexpr int MIDI_CHANNELS = 16;
 constexpr int NOTE_COUNT = 128;

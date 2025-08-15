@@ -17,8 +17,6 @@ namespace Hardware
   // Encoder state variables
   volatile int encoderValue = 0;
   volatile int lastEncoded = 0;
-  volatile int stepCounter = 0;
-  int encoderStates[PADS_COUNT] = {0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0};
 
   // Serial Interrupt variables
   volatile uint8_t status = 0;
@@ -63,13 +61,14 @@ namespace Hardware
     }
     display.clearDisplay();
     display.setTextSize(1);
-    display.setTextColor(SSD1306_WHITE);
+    display.setTextColor(WHITE);
     display.display();
 
     usb_midi.begin();
   }
 
   // Interrupt function for the encoder
+  // http://adam-meyer.com/arduino/Rotary_Encoder
   void updateEncoder()
   {
     // Read both A and B pin states
@@ -77,27 +76,21 @@ namespace Hardware
     int LSB = digitalRead(ENCODER_B); // Least Significant Bit
 
     // Create a binary representation of the state
-    int encoded = (MSB << 1) | LSB;         // Combine A and B signal states
-    int sum = (lastEncoded << 2) | encoded; // Create a unique sum to match the state transitions
+    int encoded = (MSB << 1) | LSB;                 // converting the 2 pin value to single number
+    int combination = (lastEncoded << 2) | encoded; // combining previous encoded value with current value
 
-    // Update step counter based on encoder state transition
-    stepCounter += encoderStates[sum];
-
-    // Check if full step (detent) is reached (4 steps per detent)
-    if (abs(stepCounter) >= 4)
+    // The sequence the encoder outputs while spinning clockwise is 10, 11, 01, 00 repeatedly
+    // So when last encoded value is 10 and encoded value is 11 (combination 1011)
+    if (combination == 0b1011 || combination == 0b1101 || combination == 0b0100 || combination == 0b0010)
     {
-      if (stepCounter > 0)
-      {
-        encoderValue++; // Clockwise rotation
-      }
-      else
-      {
-        encoderValue--; // Counter-clockwise rotation
-      }
-      stepCounter = 0; // Reset counter after full step
+      encoderValue++;
+    }
+    if (combination == 0b1000 || combination == 0b1110 || combination == 0b0111 || combination == 0b0001)
+    {
+      encoderValue--;
     }
 
-    lastEncoded = encoded; // Store the current state for next transition
+    lastEncoded = encoded; // store this value for next time
   }
 
   void midiInterruptHandler()
@@ -129,16 +122,14 @@ namespace Hardware
 
   int readEncoder(int current, int itemCount)
   {
-    if (encoderValue > 0)
+    if (encoderValue >= ENCODER_DETENT_STEPS)
     {
       encoderValue = 0;
-      stepCounter = 0;
       return (current + 1) % itemCount;
     }
-    if (encoderValue < 0)
+    if (encoderValue <= -ENCODER_DETENT_STEPS)
     {
       encoderValue = 0;
-      stepCounter = 0;
       return (current - 1 + itemCount) % itemCount;
     }
     return current;
@@ -146,18 +137,39 @@ namespace Hardware
 
   int readEncoderConstrained(int current, int step, int min, int max)
   {
-    if (encoderValue > 0)
+    if (encoderValue >= ENCODER_DETENT_STEPS)
     {
       encoderValue = 0;
-      stepCounter = 0;
       return constrain(current + step, min, max);
     }
-    if (encoderValue < 0)
+    if (encoderValue <= -ENCODER_DETENT_STEPS)
     {
       encoderValue = 0;
-      stepCounter = 0;
       return constrain(current - step, min, max);
     }
     return current;
+  }
+
+  float readEncoderFast(float current, float step, float min, float max)
+  {
+    float nextValue = current;
+    if (encoderValue >= ENCODER_DETENT_STEPS) // fast clockwise
+    {
+      nextValue = constrain(current + step * ENCODER_FAST_FACTOR, min, max);
+    }
+    else if (encoderValue > 0) // precise and slow clockwise
+    {
+      nextValue = constrain(current + step, min, max);
+    }
+    if (encoderValue <= -ENCODER_DETENT_STEPS) // fast counterclockwise
+    {
+      nextValue = constrain(current - step * ENCODER_FAST_FACTOR, min, max);
+    }
+    else if (encoderValue < 0) // precise and slow counterclockwise
+    {
+      nextValue = constrain(current - step, min, max);
+    }
+    encoderValue = 0;
+    return nextValue;
   }
 }
