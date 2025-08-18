@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "Hardware.h"
 #include "Stored.h"
 #include "DisplayHelpers.h"
@@ -7,13 +8,21 @@ using namespace MusicTheory;
 using namespace Hardware;
 using namespace Stored;
 
-void displayCentered(const char *text, int y)
+void displayCentered(const char *str, int y)
 {
   int16_t x1, y1;
   uint16_t width, height;
-  display.getTextBounds(text, 0, 0, &x1, &y1, &width, &height); // calc width of new string
+  display.getTextBounds(str, 0, 0, &x1, &y1, &width, &height); // calc width of new string
   display.setCursor(64 - width / 2, y);
-  display.print(text);
+  display.print(str);
+}
+
+void displayCentered(String &str, int y)
+{
+  if (str.length() != 0)
+  {
+    displayCentered(const_cast<char *>(str.c_str()), y);
+  }
 }
 
 int getNoteBlockX(int i)

@@ -99,11 +99,11 @@ namespace Display
 
   void drawCopyMenu(int selectedPad)
   {
-    display.setCursor(31, 20);
-    display.print("Copy pad ");
-    display.print(selectedPad + 1);
-    display.setCursor(10, 40);
-    display.print("Select destination");
+    String copyPad = "Copy Pad ";
+    String label = copyPad + (selectedPad + 1);
+    displayCentered(label, 16);
+    display.drawLine(10, 28, 118, 28, WHITE);
+    displayCentered("Select Destination", 34);
   }
 
   void drawMidiMenu(int menuIndex)

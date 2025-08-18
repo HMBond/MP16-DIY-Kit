@@ -1,7 +1,10 @@
 #ifndef DisplayHelpers_h
 #define DisplayHelpers_h
 
-void displayCentered(const char *buf, int y);
+#include <Arduino.h>
+
+void displayCentered(const char *str, int y);
+void displayCentered(String &str, int y);
 void drawSlots(int slotSelect);
 void drawSelectedPad(int selectedPad);
 void drawChordNotes(int pad, bool showAllNoteOffsets = false);
