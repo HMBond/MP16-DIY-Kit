@@ -8,7 +8,7 @@ using namespace MusicTheory;
 using namespace Hardware;
 using namespace Stored;
 
-void displayRight(int value, int x, int y)
+void drawFromRight(int value, int x, int y)
 {
   char buffer[4];
   itoa(value, buffer, 10);
@@ -19,7 +19,7 @@ void displayRight(int value, int x, int y)
   display.print(buffer);
 }
 
-void displayCentered(const char *str, int y)
+void drawCentered(const char *str, int y)
 {
   int16_t x1, y1;
   uint16_t width, height;
@@ -28,11 +28,11 @@ void displayCentered(const char *str, int y)
   display.print(str);
 }
 
-void displayCentered(String &str, int y)
+void drawCentered(String &str, int y)
 {
   if (str.length() != 0)
   {
-    displayCentered(const_cast<char *>(str.c_str()), y);
+    drawCentered(const_cast<char *>(str.c_str()), y);
   }
 }
 
@@ -180,7 +180,7 @@ void drawNoteVelocityModifiers(int selectedPad)
       int y = getNoteBlockY(i);
 
       int velocity = pads[selectedPad].chord.velocityModifiers[i];
-      displayRight(velocity, x + 32, y + 9);
+      drawFromRight(velocity, x + 32, y + 9);
     }
   }
 }

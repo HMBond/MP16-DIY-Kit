@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 
-void displayRight(int value, int x, int y);
-void displayCentered(const char *str, int y);
-void displayCentered(String &str, int y);
+void drawFromRight(int value, int x, int y);
+void drawCentered(const char *str, int y);
+void drawCentered(String &str, int y);
 void drawSlots(int slotSelect);
 void drawSelectedPad(int selectedPad);
 void drawChordNotes(int pad, bool showAllNoteOffsets = false);

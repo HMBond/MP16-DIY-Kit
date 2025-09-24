@@ -29,16 +29,16 @@ namespace Display
 
   void drawRootMenu()
   {
-    displayCentered("Root", 16);
+    drawCentered("Root", 16);
     display.drawLine(10, 28, 118, 28, WHITE);
-    displayCentered(midiNoteNames[settings.rootNote], 34);
+    drawCentered(midiNoteNames[settings.rootNote], 34);
   }
 
   void drawScaleMenu()
   {
-    displayCentered("Scale", 16);
+    drawCentered("Scale", 16);
     display.drawLine(10, 28, 118, 28, WHITE);
-    displayCentered(scaleNames[settings.scaleIndex], 34);
+    drawCentered(scaleNames[settings.scaleIndex], 34);
   }
 
   void drawDegreeMenu(int selectedPad)
@@ -101,31 +101,31 @@ namespace Display
   {
     String copyPad = "Copy Pad ";
     String label = copyPad + (selectedPad + 1);
-    displayCentered(label, 16);
+    drawCentered(label, 16);
     display.drawLine(10, 28, 118, 28, WHITE);
-    displayCentered("Select Destination", 34);
+    drawCentered("Select Destination", 34);
   }
 
   void drawMidiMenu(int menuIndex, bool editMenuItem)
   {
     display.setCursor(5, 1);
     display.print("MIDI Out A");
-    displayRight(settings.midiOutputAChannel + 1, 124, 1);
+    drawFromRight(settings.midiOutputAChannel + 1, 124, 1);
     display.setCursor(5, 11);
     display.print("MIDI Out B");
-    displayRight(settings.midiOutputBChannel + 1, 124, 11);
+    drawFromRight(settings.midiOutputBChannel + 1, 124, 11);
     display.setCursor(5, 21);
     display.print("MIDI Out C");
-    displayRight(settings.midiOutputCChannel + 1, 124, 21);
+    drawFromRight(settings.midiOutputCChannel + 1, 124, 21);
     display.setCursor(5, 31);
     display.print("MIDI Out D");
-    displayRight(settings.midiOutputDChannel + 1, 124, 31);
+    drawFromRight(settings.midiOutputDChannel + 1, 124, 31);
     display.setCursor(5, 41);
     display.print("MIDI In Rec");
-    displayRight(settings.midiRecChannel + 1, 124, 41);
+    drawFromRight(settings.midiRecChannel + 1, 124, 41);
     display.setCursor(5, 51);
     display.print("MIDI In Trigger");
-    displayRight(settings.midiTrigChannel + 1, 124, 51);
+    drawFromRight(settings.midiTrigChannel + 1, 124, 51);
 
     if (editMenuItem)
     {
