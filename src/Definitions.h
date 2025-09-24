@@ -48,7 +48,7 @@ struct Pad
   float arpGate = 1.0;
   int arpOctaves = 1;
   int padVelocity = 65;
-  int velocityVariation = 0;
+  int velocityRandom = 0;
   unsigned long timingVariation = 0;
   Chord chord;
 };

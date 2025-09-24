@@ -219,7 +219,7 @@ void menuNotes()
 
 void menuVariation()
 {
-  pads[selectedPad].velocityVariation = readEncoderConstrained(pads[selectedPad].velocityVariation, 1, 0, VELOCITY_MAX);
+  pads[selectedPad].velocityRandom = readEncoderFast(pads[selectedPad].velocityRandom, 1, 0, VELOCITY_RANDOM_MAX);
 }
 
 void menuVelocity()
@@ -237,7 +237,7 @@ void menuVelocity()
     if (encoderValue != 0)
     {
       killAllNotes();
-      readEncoderConstrained(pads[selectedPad].chord.velocityModifiers[menuIndex - 1], 1, 1, 128);
+      pads[selectedPad].chord.velocityModifiers[menuIndex - 1] = readEncoderConstrained(pads[selectedPad].chord.velocityModifiers[menuIndex - 1], 1, 1, 128);
     }
     if (encoderState && !previousEncoderState)
     {
@@ -600,7 +600,7 @@ void playChord(int i)
 void playNote(int pad, int j)
 {
   int note = settings.rootNote + pads[pad].chord.intervals[j] + (pads[pad].chord.octaveModifiers[j] * 12) + pads[pad].chord.semitoneModifiers[j];
-  int velocity = constrain(settings.velocityScaling * (pads[pad].padVelocity + pads[pad].chord.velocityModifiers[j] + random(-pads[pad].velocityVariation, pads[pad].velocityVariation)), 1, 128);
+  int velocity = constrain(settings.velocityScaling * (pads[pad].padVelocity + pads[pad].chord.velocityModifiers[j] + random(-pads[pad].velocityRandom, pads[pad].velocityRandom)), 1, 128);
 
   // Send NoteOff to stop any existing note in the correct channel, then increment reference count and play new note in that channel
   switch (pads[pad].chord.channel[j])

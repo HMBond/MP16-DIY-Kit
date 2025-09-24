@@ -65,7 +65,7 @@ namespace Display
     drawSelectedPad(selectedPad);
     display.setCursor(4, 28);
     display.print("Velocity Random: ");
-    display.print(pads[selectedPad].velocityVariation);
+    display.print(pads[selectedPad].velocityRandom);
   }
 
   void drawVelocityMenu(int selectedPad, int noteIndex, int menuIndex)
