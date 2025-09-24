@@ -8,13 +8,15 @@ using namespace MusicTheory;
 using namespace Hardware;
 using namespace Stored;
 
-void displayRight(const char *str, int x, int y)
+void displayRight(int value, int x, int y)
 {
+  char buffer[4];
+  itoa(value, buffer, 10);
   int16_t x1, y1;
   uint16_t width, height;
-  display.getTextBounds(str, 0, 0, &x1, &y1, &width, &height); // calc width of new string
+  display.getTextBounds(buffer, 0, 0, &x1, &y1, &width, &height); // calc width of new string
   display.setCursor(x - width, y);
-  display.print(str);
+  display.print(buffer);
 }
 
 void displayCentered(const char *str, int y)
@@ -164,6 +166,21 @@ void drawNoteVelocities(int selectedPad)
       int velocity = settings.velocityScaling * (pads[selectedPad].padVelocity + pads[selectedPad].chord.velocityModifiers[i]);
       display.setCursor(x + 32 - String(velocity).length() * 6, y + 9);
       display.print(constrain(velocity, 1, 128));
+    }
+  }
+}
+
+void drawNoteVelocityModifiers(int selectedPad)
+{
+  for (int i = 0; i < 8; i++)
+  {
+    if (pads[selectedPad].chord.isActive[i])
+    {
+      int x = getNoteBlockX(i);
+      int y = getNoteBlockY(i);
+
+      int velocity = pads[selectedPad].chord.velocityModifiers[i];
+      displayRight(velocity, x + 32, y + 9);
     }
   }
 }

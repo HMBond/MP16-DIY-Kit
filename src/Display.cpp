@@ -74,7 +74,7 @@ namespace Display
     display.setCursor(50, 0);
     display.print("Note Velocity");
     drawChordNotes(selectedPad);
-    drawNoteVelocities(selectedPad);
+    drawNoteVelocityModifiers(selectedPad);
     drawOctaveSelector(noteIndex, menuIndex);
   }
 
@@ -108,31 +108,24 @@ namespace Display
 
   void drawMidiMenu(int menuIndex, bool editMenuItem)
   {
-    char buffer[2];
     display.setCursor(5, 1);
     display.print("MIDI Out A");
-    itoa(settings.midiOutputAChannel + 1, buffer, 10);
-    displayRight(buffer, 124, 1);
+    displayRight(settings.midiOutputAChannel + 1, 124, 1);
     display.setCursor(5, 11);
     display.print("MIDI Out B");
-    itoa(settings.midiOutputBChannel + 1, buffer, 10);
-    displayRight(buffer, 124, 11);
+    displayRight(settings.midiOutputBChannel + 1, 124, 11);
     display.setCursor(5, 21);
     display.print("MIDI Out C");
-    itoa(settings.midiOutputCChannel + 1, buffer, 10);
-    displayRight(buffer, 124, 21);
+    displayRight(settings.midiOutputCChannel + 1, 124, 21);
     display.setCursor(5, 31);
     display.print("MIDI Out D");
-    itoa(settings.midiOutputDChannel + 1, buffer, 10);
-    displayRight(buffer, 124, 31);
+    displayRight(settings.midiOutputDChannel + 1, 124, 31);
     display.setCursor(5, 41);
     display.print("MIDI In Rec");
-    itoa(settings.midiRecChannel + 1, buffer, 10);
-    displayRight(buffer, 124, 41);
+    displayRight(settings.midiRecChannel + 1, 124, 41);
     display.setCursor(5, 51);
     display.print("MIDI In Trigger");
-    itoa(settings.midiTrigChannel + 1, buffer, 10);
-    displayRight(buffer, 124, 51);
+    displayRight(settings.midiTrigChannel + 1, 124, 51);
 
     if (editMenuItem)
     {
