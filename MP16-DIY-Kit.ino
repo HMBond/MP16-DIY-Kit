@@ -63,7 +63,7 @@ void loop()
   updateMenu();
   updateMIDI();
   updatePixels();
-  updateDisplay(screenIndex, selectedPad, menuIndex, slotSelect, noteIndex);
+  updateDisplay(screenIndex, selectedPad, menuIndex, slotSelect, noteIndex, editMenuItem);
 }
 
 // ********************************** Loop Functions ************************************
@@ -322,27 +322,27 @@ void menuMidi()
     switch (menuIndex)
     {
     case 0:
-      settings.midiRecChannel = updateMidiChannel(settings.midiRecChannel);
-      break;
-
-    case 1:
-      settings.midiTrigChannel = updateMidiChannel(settings.midiTrigChannel);
-      break;
-
-    case 2:
       settings.midiOutputAChannel = updateMidiChannel(settings.midiOutputAChannel);
       break;
 
-    case 3:
+    case 1:
       settings.midiOutputBChannel = updateMidiChannel(settings.midiOutputBChannel);
       break;
 
-    case 4:
+    case 2:
       settings.midiOutputCChannel = updateMidiChannel(settings.midiOutputCChannel);
       break;
 
-    case 5:
+    case 3:
       settings.midiOutputDChannel = updateMidiChannel(settings.midiOutputDChannel);
+      break;
+
+    case 4:
+      settings.midiRecChannel = updateMidiChannel(settings.midiRecChannel);
+      break;
+
+    case 5:
+      settings.midiTrigChannel = updateMidiChannel(settings.midiTrigChannel);
       break;
     }
   }

@@ -106,47 +106,41 @@ namespace Display
     displayCentered("Select Destination", 34);
   }
 
-  void drawMidiMenu(int menuIndex)
+  void drawMidiMenu(int menuIndex, bool editMenuItem)
   {
-    display.setCursor(5, 0);
-    display.print("MIDI In Rec:  ");
-    display.println(settings.midiRecChannel + 1);
-    display.setCursor(5, 10);
-    display.print("MIDI In Trig: ");
-    display.println(settings.midiTrigChannel + 1);
-    display.setCursor(5, 20);
-    display.print("MIDI Out A:   ");
-    display.println(settings.midiOutputAChannel + 1);
-    display.setCursor(5, 30);
-    display.print("MIDI Out B:   ");
-    display.println(settings.midiOutputBChannel + 1);
-    display.setCursor(5, 40);
-    display.print("MIDI Out C:   ");
-    display.println(settings.midiOutputCChannel + 1);
-    display.setCursor(5, 50);
-    display.print("MIDI Out D:   ");
-    display.println(settings.midiOutputDChannel + 1);
+    char buffer[2];
+    display.setCursor(5, 1);
+    display.print("MIDI Out A");
+    itoa(settings.midiOutputAChannel + 1, buffer, 10);
+    displayRight(buffer, 124, 1);
+    display.setCursor(5, 11);
+    display.print("MIDI Out B");
+    itoa(settings.midiOutputBChannel + 1, buffer, 10);
+    displayRight(buffer, 124, 11);
+    display.setCursor(5, 21);
+    display.print("MIDI Out C");
+    itoa(settings.midiOutputCChannel + 1, buffer, 10);
+    displayRight(buffer, 124, 21);
+    display.setCursor(5, 31);
+    display.print("MIDI Out D");
+    itoa(settings.midiOutputDChannel + 1, buffer, 10);
+    displayRight(buffer, 124, 31);
+    display.setCursor(5, 41);
+    display.print("MIDI In Rec");
+    itoa(settings.midiRecChannel + 1, buffer, 10);
+    displayRight(buffer, 124, 41);
+    display.setCursor(5, 51);
+    display.print("MIDI In Trigger");
+    itoa(settings.midiTrigChannel + 1, buffer, 10);
+    displayRight(buffer, 124, 51);
 
-    switch (menuIndex)
+    if (editMenuItem)
     {
-    case 0:
-      display.drawLine(5, 8, 124, 8, WHITE);
-      break;
-    case 1:
-      display.drawLine(5, 18, 124, 18, WHITE);
-      break;
-    case 2:
-      display.drawLine(5, 28, 124, 28, WHITE);
-      break;
-    case 3:
-      display.drawLine(5, 38, 124, 38, WHITE);
-      break;
-    case 4:
-      display.drawLine(5, 48, 124, 48, WHITE);
-      break;
-    case 5:
-      display.drawLine(5, 58, 124, 58, WHITE);
-      break;
+      display.fillRect(112, menuIndex * 10, 12, 9, INVERSE);
+    }
+    if (!editMenuItem)
+    {
+      display.fillRect(3, menuIndex * 10, 121, 9, INVERSE);
     }
   }
 
@@ -158,7 +152,7 @@ namespace Display
   }
 
   // Main function for updating the OLED display
-  void updateDisplay(int screenIndex, int selectedPad, int menuIndex, int slotSelect, int noteIndex)
+  void updateDisplay(int screenIndex, int selectedPad, int menuIndex, int slotSelect, int noteIndex, bool editMenuItem)
   {
     display.clearDisplay();
     switch (screenIndex)
@@ -197,7 +191,7 @@ namespace Display
       drawCopyMenu(selectedPad);
       break;
     case 14:
-      drawMidiMenu(menuIndex);
+      drawMidiMenu(menuIndex, editMenuItem);
       break;
     case 15:
       drawSaveScreen(slotSelect);

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 
+void displayRight(const char *str, int x, int y);
 void displayCentered(const char *str, int y);
 void displayCentered(String &str, int y);
 void drawSlots(int slotSelect);

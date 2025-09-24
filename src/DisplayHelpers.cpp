@@ -8,6 +8,15 @@ using namespace MusicTheory;
 using namespace Hardware;
 using namespace Stored;
 
+void displayRight(const char *str, int x, int y)
+{
+  int16_t x1, y1;
+  uint16_t width, height;
+  display.getTextBounds(str, 0, 0, &x1, &y1, &width, &height); // calc width of new string
+  display.setCursor(x - width, y);
+  display.print(str);
+}
+
 void displayCentered(const char *str, int y)
 {
   int16_t x1, y1;
