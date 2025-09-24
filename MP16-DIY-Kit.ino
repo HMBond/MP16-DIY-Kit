@@ -24,10 +24,11 @@ bool midiStates[PADS_COUNT] = {false};
 bool previousMidiStates[PADS_COUNT] = {false};
 
 // Menu and selection indices
-int screenIndex = -1; // Which screen is shown?
-int menuIndex = 0;    // Which menu item is selected?
-int noteIndex = 0;    // Which of the 8 notes in a chord to select
-int selectedPad = 0;  // Currently selected pad
+int screenIndex = -1;      // Which screen is shown?
+int menuIndex = 0;         // Which menu item is selected?
+bool editMenuItem = false; // Edit the selected menu item
+int noteIndex = 0;         // Which of the 8 notes in a chord to select
+int selectedPad = 0;       // Currently selected pad
 int slotSelect = 0;
 int copyIndex = -1;
 bool recording = false;
@@ -260,7 +261,7 @@ void menuNoteOffset()
     if (encoderValue != 0)
     {
       killAllNotes();
-      int& semitoneModifier = pads[selectedPad].chord.semitoneModifiers[menuIndex - 1];
+      int &semitoneModifier = pads[selectedPad].chord.semitoneModifiers[menuIndex - 1];
       semitoneModifier = readEncoderConstrained(semitoneModifier, 1, -7, 7);
     }
     if (encoderState && !previousEncoderState)
@@ -310,33 +311,40 @@ void menuMidi()
 {
   if (encoderState && !previousEncoderState)
   {
-    menuIndex = (menuIndex + 1) % 6;
+    editMenuItem = !editMenuItem;
   }
-  switch (menuIndex)
+  if (!editMenuItem)
   {
-  case 0:
-    settings.midiRecChannel = updateMidiChannel(settings.midiRecChannel);
-    break;
+    menuIndex = readEncoder(menuIndex, 6);
+  }
+  if (editMenuItem)
+  {
+    switch (menuIndex)
+    {
+    case 0:
+      settings.midiRecChannel = updateMidiChannel(settings.midiRecChannel);
+      break;
 
-  case 1:
-    settings.midiTrigChannel = updateMidiChannel(settings.midiTrigChannel);
-    break;
+    case 1:
+      settings.midiTrigChannel = updateMidiChannel(settings.midiTrigChannel);
+      break;
 
-  case 2:
-    settings.midiOutputAChannel = updateMidiChannel(settings.midiOutputAChannel);
-    break;
+    case 2:
+      settings.midiOutputAChannel = updateMidiChannel(settings.midiOutputAChannel);
+      break;
 
-  case 3:
-    settings.midiOutputBChannel = updateMidiChannel(settings.midiOutputBChannel);
-    break;
+    case 3:
+      settings.midiOutputBChannel = updateMidiChannel(settings.midiOutputBChannel);
+      break;
 
-  case 4:
-    settings.midiOutputCChannel = updateMidiChannel(settings.midiOutputCChannel);
-    break;
+    case 4:
+      settings.midiOutputCChannel = updateMidiChannel(settings.midiOutputCChannel);
+      break;
 
-  case 5:
-    settings.midiOutputDChannel = updateMidiChannel(settings.midiOutputDChannel);
-    break;
+    case 5:
+      settings.midiOutputDChannel = updateMidiChannel(settings.midiOutputDChannel);
+      break;
+    }
   }
 }
 
