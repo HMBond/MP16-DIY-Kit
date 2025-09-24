@@ -167,7 +167,7 @@ void menuLoad()
       display.setCursor(22, 28);
       display.print("Loading Failed");
       display.display();
-      delay(1000);
+      delay(2000);
     }
   }
 }
