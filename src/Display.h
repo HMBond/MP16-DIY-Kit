@@ -9,8 +9,7 @@ namespace Display
                      int selectedSlot,
                      int noteIndex,
                      bool editMenuItem);
-  void showFileSystemFailure();
-  void showCopyMessage(int source, int target);
+  void showMessage(String message, int duration = 2000);
 }
 
 #endif

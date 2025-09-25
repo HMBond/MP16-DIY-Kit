@@ -49,7 +49,7 @@ void setup()
 
   if (!LittleFS.begin())
   {
-    showFileSystemFailure();
+    showMessage("LittleFS failed");
   }
 
   Stored::load();
@@ -150,22 +150,13 @@ void menuLoad()
   {
     killAllNotes();
     screenIndex = -1;
-    if (Stored::loadFromFlash(selectedSlot))
+    if (loadFromFlash(selectedSlot))
     {
-      display.clearDisplay();
-      display.setCursor(22, 28);
-      display.print("Loaded Slot ");
-      display.print(selectedSlot + 1);
-      display.display();
-      delay(1000);
+      showMessage("Loaded Slot " + String(selectedSlot + 1));
     }
     else
     {
-      display.clearDisplay();
-      display.setCursor(22, 28);
-      display.print("Loading Failed");
-      display.display();
-      delay(2000);
+      showMessage("Loading Failed");
     }
   }
 }
@@ -354,14 +345,18 @@ void menuSave()
   selectedSlot = readEncoder(selectedSlot, SLOT_COUNT);
   if (encoderState && !previousEncoderState)
   {
-    saveToFlash(selectedSlot);
-    screenIndex = -1;
-    menuIndex = 0;
-    display.clearDisplay();
-    display.setCursor(22, 28);
-    display.print("Settings Saved");
-    display.display();
-    delay(1000);
+    bool success = saveToFlash(selectedSlot);
+    if (success)
+    {
+      screenIndex = -1;
+      menuIndex = 0;
+      String message = "Saved to Slot " + String(selectedSlot + 1);
+      showMessage(message);
+    }
+    else
+    {
+      showMessage("Saving Failed");
+    }
   }
 }
 
@@ -413,21 +408,6 @@ int degreeToScaleInterval(int degree, int scale[], int scaleLength)
   int baseDegree = degree % scaleLength;
   int octaveShift = (degree / scaleLength) * 12;
   return scale[baseDegree] + octaveShift;
-}
-
-// Save current settings to a memory slot
-void saveToFlash(int slot)
-{
-  String filePath = "/slot" + String(slot) + ".txt"; // Use String for concatenation
-  File file = LittleFS.open(filePath, "w");          // Pass the constructed file path
-  if (!file)
-  {
-    Serial.println("Failed to open file for writing");
-    return;
-  }
-  file.write((uint8_t *)&settings, sizeof(settings));
-  file.write((uint8_t *)&pads, sizeof(pads));
-  file.close();
 }
 
 // Main MIDI update function
@@ -705,7 +685,8 @@ void sendNoteOff(int note, int velocity, int channel)
 void copyPad(int target, int source)
 {
   pads[target].chord = pads[source].chord;
-  showCopyMessage(source, target);
+  String message = "Copied " + String(source + 1) + String(target + 1);
+  showMessage(message);
 }
 
 // main function for updating the neopixels

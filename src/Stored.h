@@ -13,7 +13,7 @@ namespace Stored
   // Load in all the data for the chords from flash memory, or initialize from the preset
   void load();
   bool loadFromFlash(int slot);
-  void initFromPreset();
+  bool saveToFlash(int slot);
 }
 
 #endif

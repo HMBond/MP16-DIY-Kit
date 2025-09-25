@@ -199,24 +199,11 @@ namespace Display
     display.display();
   }
 
-  void showFileSystemFailure()
+  void showMessage(String message, int duration)
   {
     display.clearDisplay();
-    display.setCursor(0, 0);
-    display.println("LittleFS failed");
+    drawCentered(message, 28);
     display.display();
-    delay(1000);
-  }
-
-  void showCopyMessage(int source, int target)
-  {
-    display.clearDisplay();
-    display.setCursor(22, 28);
-    display.print("Copied ");
-    display.print(source + 1);
-    display.print(" to ");
-    display.print(target + 1);
-    display.display();
-    delay(1000);
+    delay(duration);
   }
 }
