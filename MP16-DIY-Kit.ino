@@ -83,6 +83,9 @@ void updateMenu()
   case 7: // Edit Octave
     menuOctaves();
     break;
+  case 11: // Note Channel
+    menuNoteChannel();
+    break;
   case 14: // Edit MIDI Settings
     menuMidi();
     break;
@@ -229,6 +232,31 @@ void menuOctaves()
       killAllNotes();
       pads[selectedPad].chord.octaveModifiers[menuIndex - 1] = readEncoderConstrained(
           pads[selectedPad].chord.octaveModifiers[menuIndex - 1], 1, -3, 3);
+    }
+    if (encoderState && !previousEncoderState)
+    {
+      menuIndex = 0;
+    }
+  }
+}
+
+void menuNoteChannel()
+{
+  if (menuIndex == 0)
+  {
+    noteIndex = readEncoder(noteIndex, CHORD_NOTE_COUNT);
+    if (encoderState && !previousEncoderState)
+    {
+      menuIndex = noteIndex + 1;
+    }
+  }
+  else if (menuIndex - 1 < CHORD_NOTE_COUNT)
+  {
+    if (encoderValue != 0)
+    {
+      killAllNotes();
+      pads[selectedPad].chord.channel[menuIndex - 1] = readEncoderConstrained(
+          pads[selectedPad].chord.channel[menuIndex - 1], 1, 0, 3);
     }
     if (encoderState && !previousEncoderState)
     {

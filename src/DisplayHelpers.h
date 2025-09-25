@@ -13,8 +13,9 @@ void drawChordNotes(int pad, bool showAllNoteOffsets = false);
 void drawNoteVelocities(int selectedPad);
 void drawNoteVelocityModifiers(int selectedPad);
 void drawNoteOctaves(int selectedPad, int noteIndex, int menuIndex);
+void drawNoteChannels(int selectedPad, int noteIndex, int menuIndex);
 void drawNoteBlockSelector(int noteIndex);
 void drawNoteOffsetSelector(int noteIndex, int menuIndex);
-void drawOctaveSelector(int noteIndex, int menuIndex);
+void drawRightBottomCornerSelector(int noteIndex, int menuIndex);
 
 #endif

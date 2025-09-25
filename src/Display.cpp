@@ -74,7 +74,7 @@ namespace Display
     drawFromRight("Velocity Offset", 128, 0);
     drawChordNotes(selectedPad);
     drawNoteVelocityModifiers(selectedPad);
-    drawOctaveSelector(noteIndex, menuIndex);
+    drawRightBottomCornerSelector(noteIndex, menuIndex);
   }
 
   void drawNoteOffsetMenu(int selectedPad, int noteIndex, int menuIndex)
@@ -93,7 +93,16 @@ namespace Display
     display.print("Octave Offset");
     drawChordNotes(selectedPad);
     drawNoteOctaves(selectedPad, noteIndex, menuIndex);
-    drawOctaveSelector(noteIndex, menuIndex);
+    drawRightBottomCornerSelector(noteIndex, menuIndex);
+  }
+
+  void drawChannelMenu(int selectedPad, int noteIndex, int menuIndex)
+  {
+    drawSelectedPad(selectedPad);
+    drawFromRight("Note Channel", 128, 0);
+    drawChordNotes(selectedPad);
+    drawNoteChannels(selectedPad, noteIndex, menuIndex);
+    drawRightBottomCornerSelector(noteIndex, menuIndex);
   }
 
   void drawCopyMenu(int selectedPad)
@@ -181,6 +190,9 @@ namespace Display
       break;
     case 7:
       drawOctaveMenu(selectedPad, noteIndex, menuIndex);
+      break;
+    case 11:
+      drawChannelMenu(selectedPad, noteIndex, menuIndex);
       break;
     case 13:
       drawCopyMenu(selectedPad);

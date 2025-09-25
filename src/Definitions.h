@@ -14,7 +14,7 @@ struct Settings
   int midiOutputBChannel = 2;
   int midiOutputCChannel = 3;
   int midiOutputDChannel = 15;
-  bool midiThru = false;
+  bool midiThru = true;
   bool tempoSync = true;
   float tempo = 120;
   float velocityScaling = 1.0;

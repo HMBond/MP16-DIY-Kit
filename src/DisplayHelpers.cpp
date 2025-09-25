@@ -8,6 +8,9 @@ using namespace MusicTheory;
 using namespace Hardware;
 using namespace Stored;
 
+// Array for getting channel labels A,B,C,D from channel int
+const char *channelLabels[4] = {"A", "B", "C", "D"};
+
 void drawFromRight(const char *str, int x, int y)
 {
   int16_t x1, y1;
@@ -231,6 +234,33 @@ void drawNoteOctaves(int selectedPad, int noteIndex, int menuIndex)
   }
 }
 
+void drawNoteChannels(int selectedPad, int noteIndex, int menuIndex)
+{
+  for (int i = 0; i < 8; i++)
+  {
+    int x = getNoteBlockX(i);
+    int y = getNoteBlockY(i);
+
+    int channel = pads[selectedPad].chord.channel[i];
+    display.setCursor(x + 20, y + 9);
+    display.print(channelLabels[channel]);
+
+    if (i == noteIndex)
+    {
+      display.drawLine(x, y - 2, x + 31, y - 2, WHITE);
+      if (menuIndex - 1 == i)
+      {
+        display.drawLine(x + 13, y + 18, x + 31, y + 18, WHITE);
+        display.drawLine(x, y + 20, x + 31, y + 20, WHITE);
+      }
+      else
+      {
+        display.drawLine(x, y + 18, x + 31, y + 18, WHITE);
+      }
+    }
+  }
+}
+
 void drawNoteBlockSelector(int noteIndex)
 {
   for (int i = 0; i < 8; i++)
@@ -271,7 +301,7 @@ void drawNoteOffsetSelector(int noteIndex, int menuIndex)
   }
 }
 
-void drawOctaveSelector(int noteIndex, int menuIndex)
+void drawRightBottomCornerSelector(int noteIndex, int menuIndex)
 {
   for (int i = 0; i < 8; i++)
   {
