@@ -71,8 +71,7 @@ namespace Display
   void drawVelocityMenu(int selectedPad, int noteIndex, int menuIndex)
   {
     drawSelectedPad(selectedPad);
-    display.setCursor(50, 0);
-    display.print("Note Velocity");
+    drawFromRight("Velocity Offset", 128, 0);
     drawChordNotes(selectedPad);
     drawNoteVelocityModifiers(selectedPad);
     drawOctaveSelector(noteIndex, menuIndex);

@@ -8,15 +8,20 @@ using namespace MusicTheory;
 using namespace Hardware;
 using namespace Stored;
 
-void drawFromRight(int value, int x, int y)
+void drawFromRight(const char *str, int x, int y)
 {
-  char buffer[4];
-  itoa(value, buffer, 10);
   int16_t x1, y1;
   uint16_t width, height;
-  display.getTextBounds(buffer, 0, 0, &x1, &y1, &width, &height);
+  display.getTextBounds(str, 0, 0, &x1, &y1, &width, &height);
   display.setCursor(x - width, y);
-  display.print(buffer);
+  display.print(str);
+}
+
+void drawFromRight(int value, int x, int y)
+{
+  char str[4];
+  itoa(value, str, 10);
+  drawFromRight(str, x, y);
 }
 
 void drawCentered(const char *str, int y)

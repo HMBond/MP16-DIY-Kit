@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 
+void drawFromRight(const char *str, int x, int y);
 void drawFromRight(int value, int x, int y);
 void drawCentered(const char *str, int y);
 void drawCentered(String &str, int y);
