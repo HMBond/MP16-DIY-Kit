@@ -37,10 +37,8 @@ bool recording = false;
 float dimFactor = 0.3;
 
 // Integer array to track how many keys are referencing each MIDI note on each channel
-int noteCountA[128] = {0};
-int noteCountB[128] = {0};
-int noteCountC[128] = {0};
-int noteCountD[128] = {0};
+// Replace individual note count arrays with the new struct
+ActiveNotes activeNotes;
 
 void setup()
 {
@@ -370,28 +368,21 @@ void menuSave()
 // Menu helper function to kill all notes in reference
 void killAllNotes()
 {
+  killChannelNotes(activeNotes.channelA, settings.midiOutputAChannel);
+  killChannelNotes(activeNotes.channelB, settings.midiOutputBChannel);
+  killChannelNotes(activeNotes.channelC, settings.midiOutputCChannel);
+  killChannelNotes(activeNotes.channelD, settings.midiOutputDChannel);
+}
+
+void killChannelNotes(int channelNoteCounts[], int midiChannel)
+{
   for (int i = 0; i < 128; i++)
   {
-    if (noteCountA[i] > 0)
+    if (channelNoteCounts[i] > 0)
     {
-      sendNoteOff(i, 0, settings.midiOutputAChannel);
+      sendNoteOff(i, 0, midiChannel);
+      channelNoteCounts[i] = 0;
     }
-    noteCountA[i] = 0;
-    if (noteCountB[i] > 0)
-    {
-      sendNoteOff(i, 0, settings.midiOutputBChannel);
-    }
-    noteCountB[i] = 0;
-    if (noteCountC[i] > 0)
-    {
-      sendNoteOff(i, 0, settings.midiOutputCChannel);
-    }
-    noteCountC[i] = 0;
-    if (noteCountD[i] > 0)
-    {
-      sendNoteOff(i, 0, settings.midiOutputDChannel);
-    }
-    noteCountD[i] = 0;
   }
 }
 
@@ -612,43 +603,31 @@ void playNote(int pad, int j)
                     random(-pads[pad].velocityRandom, pads[pad].velocityRandom);
   int velocity = constrain(settings.velocityScaling * velocitySum, 1, 128);
 
-  // Send NoteOff to stop any existing note in the correct channel,
-  // then increment reference count and play new note in that channel
   switch (pads[pad].chord.channel[j])
   {
   case 0:
-    if (noteCountA[note] > 0)
-    {
-      sendNoteOff(note, velocity, settings.midiOutputAChannel);
-    }
-    noteCountA[note]++;
-    sendNoteOn(note, velocity, settings.midiOutputAChannel);
+    playChannelNote(activeNotes.channelA, note, velocity, settings.midiOutputAChannel);
     break;
   case 1:
-    if (noteCountB[note] > 0)
-    {
-      sendNoteOff(note, velocity, settings.midiOutputBChannel);
-    }
-    noteCountB[note]++;
-    sendNoteOn(note, velocity, settings.midiOutputBChannel);
+    playChannelNote(activeNotes.channelB, note, velocity, settings.midiOutputBChannel);
     break;
   case 2:
-    if (noteCountC[note] > 0)
-    {
-      sendNoteOff(note, velocity, settings.midiOutputCChannel);
-    }
-    noteCountC[note]++;
-    sendNoteOn(note, velocity, settings.midiOutputCChannel);
+    playChannelNote(activeNotes.channelC, note, velocity, settings.midiOutputCChannel);
     break;
   case 3:
-    if (noteCountD[note] > 0)
-    {
-      sendNoteOff(note, velocity, settings.midiOutputDChannel);
-    }
-    noteCountD[note]++;
-    sendNoteOn(note, velocity, settings.midiOutputDChannel);
+    playChannelNote(activeNotes.channelD, note, velocity, settings.midiOutputDChannel);
     break;
   }
+}
+
+void playChannelNote(int channelNoteCounts[], int note, int velocity, int midiChannel)
+{
+  if (channelNoteCounts[note] > 0)
+  {
+    sendNoteOff(note, velocity, midiChannel);
+  }
+  channelNoteCounts[note]++;
+  sendNoteOn(note, velocity, midiChannel);
 }
 
 void stopChord(int i)
@@ -669,49 +648,32 @@ void stopNote(int pad, int j)
              pads[pad].chord.octaveModifiers[j] * 12 +
              pads[pad].chord.semitoneModifiers[j];
 
-  // Decrement the reference count and send NoteOff if it's the last reference
   switch (pads[pad].chord.channel[j])
   {
   case 0:
-    if (noteCountA[note] > 0)
-    {
-      noteCountA[note]--;
-      if (noteCountA[note] == 0)
-      {
-        sendNoteOff(note, 0, settings.midiOutputAChannel);
-      }
-    }
+    stopChannelNote(activeNotes.channelA, note, settings.midiOutputAChannel);
     break;
   case 1:
-    if (noteCountB[note] > 0)
-    {
-      noteCountB[note]--;
-      if (noteCountB[note] == 0)
-      {
-        sendNoteOff(note, 0, settings.midiOutputBChannel);
-      }
-    }
+    stopChannelNote(activeNotes.channelB, note, settings.midiOutputBChannel);
     break;
   case 2:
-    if (noteCountC[note] > 0)
-    {
-      noteCountC[note]--;
-      if (noteCountC[note] == 0)
-      {
-        sendNoteOff(note, 0, settings.midiOutputCChannel);
-      }
-    }
+    stopChannelNote(activeNotes.channelC, note, settings.midiOutputCChannel);
     break;
   case 3:
-    if (noteCountD[note] > 0)
-    {
-      noteCountD[note]--;
-      if (noteCountD[note] == 0)
-      {
-        sendNoteOff(note, 0, settings.midiOutputDChannel);
-      }
-    }
+    stopChannelNote(activeNotes.channelD, note, settings.midiOutputDChannel);
     break;
+  }
+}
+
+void stopChannelNote(int channelNoteCounts[], int note, int midiChannel)
+{
+  if (channelNoteCounts[note] > 0)
+  {
+    channelNoteCounts[note]--;
+    if (channelNoteCounts[note] == 0)
+    {
+      sendNoteOff(note, 0, midiChannel);
+    }
   }
 }
 

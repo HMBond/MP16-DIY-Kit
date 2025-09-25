@@ -61,4 +61,13 @@ enum MIDIState
   WAITING_FOR_DATA2   // Waiting for the second data byte (velocity)
 };
 
+// Array to track note counts for each MIDI note
+struct ActiveNotes
+{
+  int channelA[128] = {0};
+  int channelB[128] = {0};
+  int channelC[128] = {0};
+  int channelD[128] = {0};
+};
+
 #endif
