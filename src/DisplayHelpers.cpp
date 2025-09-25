@@ -242,7 +242,7 @@ void drawNoteChannels(int selectedPad, int noteIndex, int menuIndex)
     int y = getNoteBlockY(i);
 
     int channel = pads[selectedPad].chord.channel[i];
-    display.setCursor(x + 20, y + 9);
+    display.setCursor(x + 26, y + 9);
     display.print(channelLabels[channel]);
 
     if (i == noteIndex)
