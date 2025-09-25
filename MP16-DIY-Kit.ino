@@ -237,7 +237,7 @@ void menuVelocity()
     if (encoderValue != 0)
     {
       killAllNotes();
-      pads[selectedPad].chord.velocityModifiers[menuIndex - 1] = readEncoderFast(pads[selectedPad].chord.velocityModifiers[menuIndex - 1], 1, -50, 50);
+      pads[selectedPad].chord.velocityModifiers[menuIndex - 1] = readEncoderFast(pads[selectedPad].chord.velocityModifiers[menuIndex - 1], 1, -128, 128);
     }
     if (encoderState && !previousEncoderState)
     {
