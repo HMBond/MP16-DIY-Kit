@@ -22,7 +22,7 @@ namespace Hardware
   volatile uint8_t status = 0;
   volatile uint8_t data1 = 0;
   volatile uint8_t data2 = 0;
-  volatile MIDIState currentState = WAITING_FOR_STATUS; // Start by waiting for the status byte
+  volatile MIDIState currentState = WAITING_FOR_STATUS;
   volatile bool midiMessageReady = false;
 
   void initHardware()
@@ -76,16 +76,24 @@ namespace Hardware
     int LSB = digitalRead(ENCODER_B); // Least Significant Bit
 
     // Create a binary representation of the state
-    int encoded = (MSB << 1) | LSB;                 // converting the 2 pin value to single number
-    int combination = (lastEncoded << 2) | encoded; // combining previous encoded value with current value
+    // converting the 2 pin value to single number
+    int encoded = (MSB << 1) | LSB;
+    // combining previous encoded value with current value
+    int combination = (lastEncoded << 2) | encoded;
 
-    // The sequence the encoder outputs while spinning clockwise is 10, 11, 01, 00 repeatedly
-    // So when last encoded value is 10 and encoded value is 11 (combination 1011)
-    if (combination == 0b1011 || combination == 0b1101 || combination == 0b0100 || combination == 0b0010)
+    // Spinning the encoder clockwise outputs 10, 11, 01, 00 repeatedly
+    // When spinning clockwise (for example: 10 -> 11), the encoder value is increased
+    if (combination == 0b1011 ||
+        combination == 0b1101 ||
+        combination == 0b0100 ||
+        combination == 0b0010)
     {
       encoderValue++;
     }
-    if (combination == 0b1000 || combination == 0b1110 || combination == 0b0111 || combination == 0b0001)
+    if (combination == 0b1000 ||
+        combination == 0b1110 ||
+        combination == 0b0111 ||
+        combination == 0b0001)
     {
       encoderValue--;
     }
@@ -100,7 +108,8 @@ namespace Hardware
     switch (currentState)
     {
     case WAITING_FOR_STATUS:
-      if ((incomingByte >= 128 && incomingByte <= 143) || (incomingByte >= 144 && incomingByte <= 159))
+      if ((incomingByte >= 128 && incomingByte <= 143) ||
+          (incomingByte >= 144 && incomingByte <= 159))
       {
         status = incomingByte;
         currentState = WAITING_FOR_DATA1; // Next, expect data1 (note number)

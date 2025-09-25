@@ -10,11 +10,11 @@ using namespace Stored;
 
 namespace Display
 {
-  void drawLoadScreen(int slotSelect)
+  void drawLoadScreen(int selectedSlot)
   {
     display.setCursor(40, 0);
     display.print("Load:");
-    drawSlots(slotSelect);
+    drawSlots(selectedSlot);
   }
 
   void drawMainMenu(int selectedPad)
@@ -137,21 +137,26 @@ namespace Display
     }
   }
 
-  void drawSaveScreen(int slotSelect)
+  void drawSaveScreen(int selectedSlot)
   {
     display.setCursor(40, 0);
     display.print("Save to:");
-    drawSlots(slotSelect);
+    drawSlots(selectedSlot);
   }
 
   // Main function for updating the OLED display
-  void updateDisplay(int screenIndex, int selectedPad, int menuIndex, int slotSelect, int noteIndex, bool editMenuItem)
+  void updateDisplay(int screenIndex,
+                     int selectedPad,
+                     int menuIndex,
+                     int selectedSlot,
+                     int noteIndex,
+                     bool editMenuItem)
   {
     display.clearDisplay();
     switch (screenIndex)
     {
     case -2:
-      drawLoadScreen(slotSelect);
+      drawLoadScreen(selectedSlot);
       break;
     case -1:
       drawMainMenu(selectedPad);
@@ -187,7 +192,7 @@ namespace Display
       drawMidiMenu(menuIndex, editMenuItem);
       break;
     case 15:
-      drawSaveScreen(slotSelect);
+      drawSaveScreen(selectedSlot);
       break;
     }
 

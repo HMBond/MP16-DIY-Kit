@@ -29,7 +29,7 @@ int menuIndex = 0;         // Which menu item is selected?
 bool editMenuItem = false; // Edit the selected menu item
 int noteIndex = 0;         // Which of the 8 notes in a chord to select
 int selectedPad = 0;       // Currently selected pad
-int slotSelect = 0;
+int selectedSlot = 0;
 int copyIndex = -1;
 bool recording = false;
 
@@ -63,7 +63,7 @@ void loop()
   updateMenu();
   updateMIDI();
   updatePixels();
-  updateDisplay(screenIndex, selectedPad, menuIndex, slotSelect, noteIndex, editMenuItem);
+  updateDisplay(screenIndex, selectedPad, menuIndex, selectedSlot, noteIndex, editMenuItem);
 }
 
 // ********************************** Loop Functions ************************************
@@ -147,17 +147,17 @@ void updateMenu()
 
 void menuLoad()
 {
-  slotSelect = readEncoder(slotSelect, SLOT_COUNT);
+  selectedSlot = readEncoder(selectedSlot, SLOT_COUNT);
   if (encoderState && !previousEncoderState)
   {
     killAllNotes();
     screenIndex = -1;
-    if (Stored::loadFromFlash(slotSelect))
+    if (Stored::loadFromFlash(selectedSlot))
     {
       display.clearDisplay();
       display.setCursor(22, 28);
       display.print("Loaded Slot ");
-      display.print(slotSelect + 1);
+      display.print(selectedSlot + 1);
       display.display();
       delay(1000);
     }
@@ -202,7 +202,8 @@ void menuDegree()
   if (encoderValue != 0)
   {
     killAllNotes();
-    pads[selectedPad].chord.degree = readEncoderConstrained(pads[selectedPad].chord.degree, 1, 0, 6);
+    pads[selectedPad].chord.degree = readEncoderConstrained(
+        pads[selectedPad].chord.degree, 1, 0, 6);
     setChordIntervals(selectedPad);
   }
 }
@@ -219,7 +220,8 @@ void menuNotes()
 
 void menuVariation()
 {
-  pads[selectedPad].velocityRandom = readEncoderFast(pads[selectedPad].velocityRandom, 1, 0, VELOCITY_RANDOM_MAX);
+  pads[selectedPad].velocityRandom = readEncoderFast(
+      pads[selectedPad].velocityRandom, 1, 0, VELOCITY_RANDOM_MAX);
 }
 
 void menuVelocity()
@@ -237,7 +239,8 @@ void menuVelocity()
     if (encoderValue != 0)
     {
       killAllNotes();
-      pads[selectedPad].chord.velocityModifiers[menuIndex - 1] = readEncoderFast(pads[selectedPad].chord.velocityModifiers[menuIndex - 1], 1, -128, 128);
+      pads[selectedPad].chord.velocityModifiers[menuIndex - 1] = readEncoderFast(
+          pads[selectedPad].chord.velocityModifiers[menuIndex - 1], 1, -128, 128);
     }
     if (encoderState && !previousEncoderState)
     {
@@ -286,8 +289,8 @@ void menuOctaves()
     if (encoderValue != 0)
     {
       killAllNotes();
-      pads[selectedPad].chord.octaveModifiers[menuIndex - 1] =
-          readEncoderConstrained(pads[selectedPad].chord.octaveModifiers[menuIndex - 1], 1, -3, 3);
+      pads[selectedPad].chord.octaveModifiers[menuIndex - 1] = readEncoderConstrained(
+          pads[selectedPad].chord.octaveModifiers[menuIndex - 1], 1, -3, 3);
     }
     if (encoderState && !previousEncoderState)
     {
@@ -350,10 +353,10 @@ void menuMidi()
 
 void menuSave()
 {
-  slotSelect = readEncoder(slotSelect, SLOT_COUNT);
+  selectedSlot = readEncoder(selectedSlot, SLOT_COUNT);
   if (encoderState && !previousEncoderState)
   {
-    saveToFlash(slotSelect);
+    saveToFlash(selectedSlot);
     screenIndex = -1;
     menuIndex = 0;
     display.clearDisplay();
@@ -406,13 +409,14 @@ void setChordIntervals(int i)
 {
   for (int j = 0; j < 7; j++)
   {
-    pads[i].chord.intervals[j] =
-        degreeToScaleInterval(pads[i].chord.degree + chordDegrees[j], scales[settings.scaleIndex], 7);
+    pads[i].chord.intervals[j] = degreeToScaleInterval(
+        pads[i].chord.degree + chordDegrees[j], scales[settings.scaleIndex], 7);
   }
   pads[i].chord.intervals[7] = pads[i].chord.intervals[0];
 }
 
-// Menu helper function to calculate interval within the scale, accounting for octave shifts
+// Menu helper function to calculate interval within the scale,
+// accounting for octave shifts
 int degreeToScaleInterval(int degree, int scale[], int scaleLength)
 {
   int baseDegree = degree % scaleLength;
@@ -599,10 +603,17 @@ void playChord(int i)
 
 void playNote(int pad, int j)
 {
-  int note = settings.rootNote + pads[pad].chord.intervals[j] + (pads[pad].chord.octaveModifiers[j] * 12) + pads[pad].chord.semitoneModifiers[j];
-  int velocity = constrain(settings.velocityScaling * (pads[pad].padVelocity + pads[pad].chord.velocityModifiers[j] + random(-pads[pad].velocityRandom, pads[pad].velocityRandom)), 1, 128);
+  int note = settings.rootNote +
+             pads[pad].chord.intervals[j] +
+             pads[pad].chord.octaveModifiers[j] * 12 +
+             pads[pad].chord.semitoneModifiers[j];
+  int velocitySum = pads[pad].padVelocity +
+                    pads[pad].chord.velocityModifiers[j] +
+                    random(-pads[pad].velocityRandom, pads[pad].velocityRandom);
+  int velocity = constrain(settings.velocityScaling * velocitySum, 1, 128);
 
-  // Send NoteOff to stop any existing note in the correct channel, then increment reference count and play new note in that channel
+  // Send NoteOff to stop any existing note in the correct channel,
+  // then increment reference count and play new note in that channel
   switch (pads[pad].chord.channel[j])
   {
   case 0:
@@ -653,7 +664,10 @@ void stopChord(int i)
 
 void stopNote(int pad, int j)
 {
-  int note = settings.rootNote + pads[pad].chord.intervals[j] + (pads[pad].chord.octaveModifiers[j] * 12) + pads[pad].chord.semitoneModifiers[j];
+  int note = settings.rootNote +
+             pads[pad].chord.intervals[j] +
+             pads[pad].chord.octaveModifiers[j] * 12 +
+             pads[pad].chord.semitoneModifiers[j];
 
   // Decrement the reference count and send NoteOff if it's the last reference
   switch (pads[pad].chord.channel[j])
@@ -705,7 +719,8 @@ void sendNoteOn(int note, int velocity, int channel)
 {
   if (channel < 0 || channel > 15)
     return;
-  uint8_t status = 0x90 | (channel); // 0x90 is "Note On", and channel is adjusted to 0-based
+  // 0x90 is "Note On", and channel is adjusted to 0-based
+  uint8_t status = 0x90 | (channel);
   uint8_t usb_packet[] = {status, (uint8_t)note, (uint8_t)velocity};
   usb_midi.write(usb_packet, 3);
   Serial1.write(status);
@@ -738,11 +753,13 @@ void updatePixels()
 
   if (shiftState)
   {
-    pixels.setPixelColor(0, settings.shiftColor); // Shift key lighting
+    // Shift key lighting
+    pixels.setPixelColor(0, settings.shiftColor);
   }
   else if (screenIndex != -1)
   {
-    pixels.setPixelColor(0, dimColor(settings.shiftColor, dimFactor)); // Shift key lighting dimly
+    // Shift key lighting dimly
+    pixels.setPixelColor(0, dimColor(settings.shiftColor, dimFactor));
   }
 
   for (int i = 0; i < PADS_COUNT; i++)

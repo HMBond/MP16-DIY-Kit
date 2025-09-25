@@ -6,7 +6,7 @@
 void drawFromRight(int value, int x, int y);
 void drawCentered(const char *str, int y);
 void drawCentered(String &str, int y);
-void drawSlots(int slotSelect);
+void drawSlots(int selectedSlot);
 void drawSelectedPad(int selectedPad);
 void drawChordNotes(int pad, bool showAllNoteOffsets = false);
 void drawNoteVelocities(int selectedPad);

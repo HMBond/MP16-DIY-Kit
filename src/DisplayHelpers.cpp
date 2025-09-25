@@ -14,7 +14,7 @@ void drawFromRight(int value, int x, int y)
   itoa(value, buffer, 10);
   int16_t x1, y1;
   uint16_t width, height;
-  display.getTextBounds(buffer, 0, 0, &x1, &y1, &width, &height); // calc width of new string
+  display.getTextBounds(buffer, 0, 0, &x1, &y1, &width, &height);
   display.setCursor(x - width, y);
   display.print(buffer);
 }
@@ -23,7 +23,7 @@ void drawCentered(const char *str, int y)
 {
   int16_t x1, y1;
   uint16_t width, height;
-  display.getTextBounds(str, 0, 0, &x1, &y1, &width, &height); // calc width of new string
+  display.getTextBounds(str, 0, 0, &x1, &y1, &width, &height);
   display.setCursor(64 - width / 2, y);
   display.print(str);
 }
@@ -46,14 +46,14 @@ int getNoteBlockY(int i)
   return i < 4 ? 16 : 38;
 }
 
-void drawSlots(int slotSelect)
+void drawSlots(int selectedSlot)
 {
   for (int i = 0; i < 4; i++)
   {
     display.setCursor(44, 12 + 11 * i);
     display.print("Slot ");
     display.print(i + 1);
-    if (i == slotSelect)
+    if (i == selectedSlot)
     {
       display.drawRect(42, 10 + 11 * i, 40, 11, WHITE);
     }
@@ -112,7 +112,6 @@ void drawNoteOffsetValue(int x, int y, int semitoneModifier, int i)
 {
   display.setTextColor(BLACK);
   display.setCursor(x + 1, y + 9);
-
   if (semitoneModifier < 0)
   {
     display.print(semitoneModifier);
@@ -122,7 +121,6 @@ void drawNoteOffsetValue(int x, int y, int semitoneModifier, int i)
     display.print("+");
     display.print(semitoneModifier);
   }
-
   display.setTextColor(WHITE);
 }
 
@@ -130,7 +128,11 @@ void drawNote(int x, int y, int i, int selectedPad, int semitoneModifier)
 {
   if (pads[selectedPad].chord.isActive[i])
   {
-    String note = midiNoteNames[settings.rootNote + pads[selectedPad].chord.intervals[i] + (pads[selectedPad].chord.octaveModifiers[i] * 12) + semitoneModifier];
+    int noteNumber = settings.rootNote +
+                     pads[selectedPad].chord.intervals[i] +
+                     pads[selectedPad].chord.octaveModifiers[i] * 12 +
+                     semitoneModifier;
+    String note = midiNoteNames[noteNumber];
     display.setCursor(x + 32 - note.length() * 6, y + 1);
     display.print(note);
   }
@@ -163,7 +165,9 @@ void drawNoteVelocities(int selectedPad)
       int x = getNoteBlockX(i);
       int y = getNoteBlockY(i);
 
-      int velocity = settings.velocityScaling * (pads[selectedPad].padVelocity + pads[selectedPad].chord.velocityModifiers[i]);
+      int velocitySum = pads[selectedPad].padVelocity +
+                        pads[selectedPad].chord.velocityModifiers[i];
+      int velocity = settings.velocityScaling * velocitySum;
       display.setCursor(x + 32 - String(velocity).length() * 6, y + 9);
       display.print(constrain(velocity, 1, 128));
     }

@@ -8,7 +8,8 @@ namespace Stored
   Settings settings;
   Pad pads[PADS_COUNT];
 
-  // Load a memory slot from flash memory, returns true is successful, otherwise returns false
+  // Load a memory slot from flash memory,
+  // returns true if successful, false on failure
   bool loadFromFlash(int slot)
   {
     String filePath = "/slot" + String(slot) + ".txt"; // Use String for concatenation
@@ -48,12 +49,11 @@ namespace Stored
     }
   }
 
-  // Load in all the data for the chords from flash memory, or initialize from the preset
   void load()
   {
     if (!loadFromFlash(0))
     {
-      // No saved data available, initialize chords from preset
+      // No saved data available, initialize from preset
       initFromPreset();
     }
   }
