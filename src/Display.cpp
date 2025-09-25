@@ -98,9 +98,7 @@ namespace Display
 
   void drawCopyMenu(int selectedPad)
   {
-    String copyPad = "Copy Pad ";
-    String label = copyPad + (selectedPad + 1);
-    drawCentered(label, 16);
+    drawCentered("Copy Pad " + String(selectedPad + 1), 16);
     display.drawLine(10, 28, 118, 28, WHITE);
     drawCentered("Select Destination", 34);
   }

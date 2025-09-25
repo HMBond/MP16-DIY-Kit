@@ -4,41 +4,22 @@
 #include "./src/Stored.h"
 #include "./src/Display.h"
 #include "./src/MusicTheory.h"
+#include "./src/Pads.h"
 
 using namespace MusicTheory;
 using namespace Hardware;
 using namespace Stored;
 using namespace Display;
-
-// Key state arrays
-bool shiftState = false;
-bool previousShiftState = false;
-bool encoderState = false;
-bool previousEncoderState = false;
-bool keyStates[PADS_COUNT] = {false};
-bool previousKeyStates[PADS_COUNT] = {false};
-bool shiftPressedAtKeyDown[PADS_COUNT] = {false};
-bool padStates[PADS_COUNT] = {false};
-bool previousPadStates[PADS_COUNT] = {false};
-bool midiStates[PADS_COUNT] = {false};
-bool previousMidiStates[PADS_COUNT] = {false};
+using namespace Pads;
 
 // Menu and selection indices
 int screenIndex = -1;      // Which screen is shown?
 int menuIndex = 0;         // Which menu item is selected?
 bool editMenuItem = false; // Edit the selected menu item
 int noteIndex = 0;         // Which of the 8 notes in a chord to select
-int selectedPad = 0;       // Currently selected pad
-int selectedSlot = 0;
-int copyIndex = -1;
-bool recording = false;
 
 // How much to dim the LED colors
 float dimFactor = 0.3;
-
-// Integer array to track how many keys are referencing each MIDI note on each channel
-// Replace individual note count arrays with the new struct
-ActiveNotes activeNotes;
 
 void setup()
 {
@@ -60,44 +41,12 @@ void loop()
   checkKeys();
   updateMenu();
   updateMIDI();
+  actOnPadStates(screenIndex, menuIndex);
   updatePixels();
   updateDisplay(screenIndex, selectedPad, menuIndex, selectedSlot, noteIndex, editMenuItem);
 }
 
 // ********************************** Loop Functions ************************************
-
-// Checking all keys to update their input
-void checkKeys()
-{
-  // Set all previous states to current states
-  previousShiftState = shiftState;
-  previousEncoderState = encoderState;
-  for (int i = 0; i < PADS_COUNT; i++)
-  {
-    previousKeyStates[i] = keyStates[i];
-  }
-
-  // Now update all current states
-  shiftState = !digitalRead(SHIFT_PIN);
-  encoderState = !digitalRead(ENCODER_S);
-
-  // Read through the keymatrix to update key states
-  for (int row = 0; row < ROW_COUNT; row++)
-  {
-    digitalWrite(ROW0_PIN, row == 0 ? LOW : HIGH);
-    digitalWrite(ROW1_PIN, row == 1 ? LOW : HIGH);
-    digitalWrite(ROW2_PIN, row == 2 ? LOW : HIGH);
-    digitalWrite(ROW3_PIN, row == 3 ? LOW : HIGH);
-    for (int col = 0; col < COL_COUNT; col++)
-    {
-      int keyIndex = row * COL_COUNT + col;
-      bool currentKeyState = !digitalRead(COL0_PIN + col);
-      keyStates[keyIndex] = currentKeyState;
-    }
-  }
-  // set last row high again after scanning
-  digitalWrite(ROW3_PIN, HIGH);
-}
 
 // Main function to update the menu
 void updateMenu()
@@ -360,27 +309,6 @@ void menuSave()
   }
 }
 
-// Menu helper function to kill all notes in reference
-void killAllNotes()
-{
-  killChannelNotes(activeNotes.channelA, settings.midiOutputAChannel);
-  killChannelNotes(activeNotes.channelB, settings.midiOutputBChannel);
-  killChannelNotes(activeNotes.channelC, settings.midiOutputCChannel);
-  killChannelNotes(activeNotes.channelD, settings.midiOutputDChannel);
-}
-
-void killChannelNotes(int channelNoteCounts[], int midiChannel)
-{
-  for (int i = 0; i < 128; i++)
-  {
-    if (channelNoteCounts[i] > 0)
-    {
-      sendNoteOff(i, 0, midiChannel);
-      channelNoteCounts[i] = 0;
-    }
-  }
-}
-
 // Menu helper function for updating all chord intervals after a scale change
 void setAllChordIntervals()
 {
@@ -408,285 +336,6 @@ int degreeToScaleInterval(int degree, int scale[], int scaleLength)
   int baseDegree = degree % scaleLength;
   int octaveShift = (degree / scaleLength) * 12;
   return scale[baseDegree] + octaveShift;
-}
-
-// Main MIDI update function
-void updateMIDI()
-{
-  for (int i = 0; i < PADS_COUNT; i++)
-  {
-    previousMidiStates[i] = midiStates[i];
-    previousPadStates[i] = padStates[i];
-  }
-
-  if (midiMessageReady)
-  {
-    midiMessageReady = false; // Reset the flag
-    // Process the MIDI message (status, data1, data2)
-    processIncomingMIDI(status, data1, data2);
-  }
-
-  // Check for incoming USB MIDI messages
-  if (usb_midi.available())
-  {
-    uint32_t packet = usb_midi.read();
-    uint8_t status = (packet >> 8) & 0xFF; // Status byte
-    uint8_t data1 = (packet >> 16) & 0xFF; // Data1 (e.g., note)
-    uint8_t data2 = (packet >> 24) & 0xFF; // Data2 (e.g., velocity)
-    processIncomingMIDI(status, data1, data2);
-  }
-
-  if (shiftState && !previousShiftState)
-  { // Reset shortcut screen index is shift is pressed
-    screenIndex = -1;
-  }
-
-  for (int i = 0; i < PADS_COUNT; i++)
-  { // Go through all pads
-
-    // Check for rising or falling edges in the keys
-    if (keyStates[i] && !previousKeyStates[i])
-    { // Key is pressed
-      if (shiftState)
-      { // Check if we're using a SHIFT shortcut
-        shiftPressedAtKeyDown[i] = true;
-        screenIndex = i;
-        if (i == 13)
-        {
-          copyIndex = selectedPad;
-        }
-        menuIndex = 0;
-      }
-      else if (screenIndex == 13)
-      { // Check whether we're copying a pad
-        killAllNotes();
-        if (copyIndex != -1 && copyIndex != i)
-        {
-          copyPad(i, copyIndex);
-          copyIndex = -1;
-        }
-        screenIndex = -1;
-      }
-      else
-      { // Change pad state
-        shiftPressedAtKeyDown[i] = false;
-        padStates[i] = true;
-        selectedPad = i;
-      }
-    }
-    else if (!keyStates[i] && previousKeyStates[i])
-    { // Key is released
-      if (!shiftPressedAtKeyDown[i])
-      {
-        for (int j = 0; j < 8; j++)
-        {
-          if (pads[i].chord.isActive[j])
-          {
-            if (!midiStates[i])
-            {
-              padStates[i] = false;
-            }
-          }
-        }
-      }
-    }
-
-    // Check for rising and falling edges in the midiTriggers
-    if (midiStates[i] && !previousMidiStates[i])
-    {
-      padStates[i] = true;
-    }
-    else if (!midiStates[i] && previousMidiStates[i])
-    {
-      if (!keyStates[i])
-      {
-        padStates[i] = false;
-      }
-    }
-
-    // Finally check rising or falling edges in pad playing status
-    if (padStates[i] && !previousPadStates[i])
-    {
-      playChord(i);
-    }
-    else if (!padStates[i] && previousPadStates[i])
-    {
-      stopChord(i);
-    }
-  }
-}
-
-void processIncomingMIDI(uint8_t status, uint8_t data1, uint8_t data2)
-{
-  uint8_t command = status & 0xF0; // Mask out the channel bits
-  uint8_t channel = status & 0x0F; // Get the channel
-  if (settings.midiThru)
-  {
-    forwardMIDI(status, data1, data2);
-  }
-
-  if (channel == settings.midiRecChannel && recording)
-  {
-    // store incoming notes into a buffer for structuring into a chord later?
-  }
-
-  if (channel == settings.midiTrigChannel && (command == 144 || command == 128))
-  {
-    for (int i = 0; i < PADS_COUNT; i++)
-    {
-      if (data1 == pads[i].triggerNote)
-      {
-        if (data2 > 0 && command == 144)
-        {
-          midiStates[i] = true;
-        }
-        else
-        {
-          midiStates[i] = false;
-        }
-      }
-    }
-  }
-}
-
-void forwardMIDI(uint8_t status, uint8_t data1, uint8_t data2)
-{
-  // Forward to USB MIDI
-  uint8_t usb_packet[] = {status, data1, data2};
-  usb_midi.write(usb_packet, 3);
-
-  // Forward to Serial MIDI
-  Serial1.write(status);
-  Serial1.write(data1);
-  Serial1.write(data2);
-}
-
-void playChord(int i)
-{
-  for (int j = 0; j < 8; j++)
-  {
-    if (pads[i].chord.isActive[j])
-    {
-      playNote(i, j);
-    }
-  }
-}
-
-void playNote(int pad, int j)
-{
-  int note = settings.rootNote +
-             pads[pad].chord.intervals[j] +
-             pads[pad].chord.octaveModifiers[j] * 12 +
-             pads[pad].chord.semitoneModifiers[j];
-  int velocitySum = pads[pad].padVelocity +
-                    pads[pad].chord.velocityModifiers[j] +
-                    random(-pads[pad].velocityRandom, pads[pad].velocityRandom);
-  int velocity = constrain(settings.velocityScaling * velocitySum, 1, 128);
-
-  switch (pads[pad].chord.channel[j])
-  {
-  case 0:
-    playChannelNote(activeNotes.channelA, note, velocity, settings.midiOutputAChannel);
-    break;
-  case 1:
-    playChannelNote(activeNotes.channelB, note, velocity, settings.midiOutputBChannel);
-    break;
-  case 2:
-    playChannelNote(activeNotes.channelC, note, velocity, settings.midiOutputCChannel);
-    break;
-  case 3:
-    playChannelNote(activeNotes.channelD, note, velocity, settings.midiOutputDChannel);
-    break;
-  }
-}
-
-void playChannelNote(int channelNoteCounts[], int note, int velocity, int midiChannel)
-{
-  if (channelNoteCounts[note] > 0)
-  {
-    sendNoteOff(note, velocity, midiChannel);
-  }
-  channelNoteCounts[note]++;
-  sendNoteOn(note, velocity, midiChannel);
-}
-
-void stopChord(int i)
-{
-  for (int j = 0; j < 8; j++)
-  {
-    if (pads[i].chord.isActive[j])
-    {
-      stopNote(i, j);
-    }
-  }
-}
-
-void stopNote(int pad, int j)
-{
-  int note = settings.rootNote +
-             pads[pad].chord.intervals[j] +
-             pads[pad].chord.octaveModifiers[j] * 12 +
-             pads[pad].chord.semitoneModifiers[j];
-
-  switch (pads[pad].chord.channel[j])
-  {
-  case 0:
-    stopChannelNote(activeNotes.channelA, note, settings.midiOutputAChannel);
-    break;
-  case 1:
-    stopChannelNote(activeNotes.channelB, note, settings.midiOutputBChannel);
-    break;
-  case 2:
-    stopChannelNote(activeNotes.channelC, note, settings.midiOutputCChannel);
-    break;
-  case 3:
-    stopChannelNote(activeNotes.channelD, note, settings.midiOutputDChannel);
-    break;
-  }
-}
-
-void stopChannelNote(int channelNoteCounts[], int note, int midiChannel)
-{
-  if (channelNoteCounts[note] > 0)
-  {
-    channelNoteCounts[note]--;
-    if (channelNoteCounts[note] == 0)
-    {
-      sendNoteOff(note, 0, midiChannel);
-    }
-  }
-}
-
-void sendNoteOn(int note, int velocity, int channel)
-{
-  if (channel < 0 || channel > 15)
-    return;
-  // 0x90 is "Note On", and channel is adjusted to 0-based
-  uint8_t status = 0x90 | (channel);
-  uint8_t usb_packet[] = {status, (uint8_t)note, (uint8_t)velocity};
-  usb_midi.write(usb_packet, 3);
-  Serial1.write(status);
-  Serial1.write(note);
-  Serial1.write(velocity);
-}
-
-void sendNoteOff(int note, int velocity, int channel)
-{
-  if (channel < 0 || channel > 15)
-    return;
-  uint8_t status = 0x80 | (channel);
-  uint8_t usb_packet[] = {status, (uint8_t)note, (uint8_t)velocity};
-  usb_midi.write(usb_packet, 3);
-  Serial1.write(status);
-  Serial1.write(note);
-  Serial1.write(velocity);
-}
-
-void copyPad(int target, int source)
-{
-  pads[target].chord = pads[source].chord;
-  String message = "Copied " + String(source + 1) + String(target + 1);
-  showMessage(message);
 }
 
 // main function for updating the neopixels
