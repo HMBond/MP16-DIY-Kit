@@ -8,17 +8,13 @@ struct Settings
 {
   int rootNote = 48;
   int scaleIndex = 0;
-  int midiRecChannel = 0;
-  int midiTrigChannel = 1;
+  int midiInChannel = 0;
   int midiOutputAChannel = 0;
-  int midiOutputBChannel = 2;
-  int midiOutputCChannel = 3;
-  int midiOutputDChannel = 15;
+  int midiOutputBChannel = 1;
+  int midiOutputCChannel = 2;
+  int midiOutputDChannel = 3;
   bool midiThru = true;
-  bool tempoSync = true;
-  float tempo = 120;
   float velocityScaling = 1.0;
-  int defaultVelocity = 65;
   uint32_t shiftColor = 0xFF0000;
   int ledBrightness = 100;
 };

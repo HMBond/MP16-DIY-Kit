@@ -23,7 +23,10 @@ float dimFactor = 0.3;
 
 void setup()
 {
-  initHardware();
+
+  Stored::load();
+  setAllChordIntervals();
+  initHardware(Stored::settings);
 
   pinMode(RX_PIN, INPUT_PULLUP);
   Serial1.begin(31250);
@@ -32,8 +35,6 @@ void setup()
   {
     showMessage("LittleFS failed");
   }
-
-  Stored::load();
 }
 
 void loop()
@@ -284,7 +285,7 @@ void menuMidi()
   }
   if (!editMenuItem)
   {
-    menuIndex = readEncoder(menuIndex, 6);
+    menuIndex = readEncoder(menuIndex, 5);
   }
   if (editMenuItem)
   {
@@ -307,11 +308,7 @@ void menuMidi()
       break;
 
     case 4:
-      settings.midiRecChannel = updateMidiChannel(settings.midiRecChannel);
-      break;
-
-    case 5:
-      settings.midiTrigChannel = updateMidiChannel(settings.midiTrigChannel);
+      settings.midiInChannel = updateMidiChannel(settings.midiInChannel);
       break;
     }
   }

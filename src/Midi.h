@@ -13,7 +13,6 @@ namespace Midi
   extern bool previousPadStates[PADS_COUNT];
   extern bool midiStates[PADS_COUNT];
   extern bool previousMidiStates[PADS_COUNT];
-  extern bool recording; // TODO
 
   // Integer array to track how many keys are referencing each MIDI note on each channel
   // Replace individual note count arrays with the new struct

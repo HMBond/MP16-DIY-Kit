@@ -27,7 +27,7 @@ namespace Hardware
   extern volatile MIDIState currentState;
   extern volatile bool midiMessageReady;
 
-  void initHardware();
+  void initHardware(Settings settings);
   void updateEncoder();
   void midiInterruptHandler();
   int readEncoder(int current, int itemCount);

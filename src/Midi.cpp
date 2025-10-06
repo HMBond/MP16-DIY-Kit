@@ -11,7 +11,6 @@ namespace Midi
   bool previousPadStates[PADS_COUNT] = {false};
   bool midiStates[PADS_COUNT] = {false};
   bool previousMidiStates[PADS_COUNT] = {false};
-  bool recording = false;
   ActiveNotes activeNotes;
 
   void sendNoteOff(int note, int velocity, int channel)
@@ -68,12 +67,7 @@ namespace Midi
       forwardMIDI(status, data1, data2);
     }
 
-    if (channel == settings.midiRecChannel && recording)
-    {
-      // TODO: store incoming notes into a buffer for structuring into a chord
-    }
-
-    if (channel == settings.midiTrigChannel && (command == 144 || command == 128))
+    if (channel == settings.midiInChannel && (command == 144 || command == 128))
     {
       for (int i = 0; i < PADS_COUNT; i++)
       {

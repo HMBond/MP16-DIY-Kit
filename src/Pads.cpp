@@ -118,7 +118,7 @@ namespace Pads
         }
       }
 
-      // Check for rising and falling edges in the midiTriggers
+      // Check if pads get triggered by MIDI IN
       if (midiStates[i] && !previousMidiStates[i])
       {
         padStates[i] = true;

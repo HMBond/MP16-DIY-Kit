@@ -127,11 +127,8 @@ namespace Display
     display.print("MIDI Out D");
     drawFromRight(settings.midiOutputDChannel + 1, 124, 31);
     display.setCursor(5, 41);
-    display.print("MIDI In Rec");
-    drawFromRight(settings.midiRecChannel + 1, 124, 41);
-    display.setCursor(5, 51);
-    display.print("MIDI In Trigger");
-    drawFromRight(settings.midiTrigChannel + 1, 124, 51);
+    display.print("MIDI In");
+    drawFromRight(settings.midiInChannel + 1, 124, 41);
 
     if (editMenuItem)
     {

@@ -25,7 +25,7 @@ namespace Hardware
   volatile MIDIState currentState = WAITING_FOR_STATUS;
   volatile bool midiMessageReady = false;
 
-  void initHardware()
+  void initHardware(Settings settings)
   {
     // Configure pin modes
     pinMode(ROW0_PIN, OUTPUT);
@@ -48,7 +48,7 @@ namespace Hardware
 
     // Initialize NeoPixels
     pixels.begin();
-    pixels.setBrightness(100);
+    pixels.setBrightness(settings.ledBrightness);
     pixels.clear();
     pixels.show();
 
