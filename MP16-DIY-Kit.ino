@@ -181,8 +181,8 @@ void menuVelocity()
     if (encoderValue != 0)
     {
       killAllNotes();
-      pads[selectedPad].chord.velocityModifiers[menuIndex - 1] = readEncoderFast(
-          pads[selectedPad].chord.velocityModifiers[menuIndex - 1], 1, -128, 128);
+      int &velocityModifier = pads[selectedPad].chord.velocityModifiers[menuIndex - 1];
+      velocityModifier = readEncoderFast(velocityModifier, 1, -127, 127);
     }
     if (encoderState && !previousEncoderState)
     {
@@ -231,8 +231,8 @@ void menuOctaves()
     if (encoderValue != 0)
     {
       killAllNotes();
-      pads[selectedPad].chord.octaveModifiers[menuIndex - 1] = readEncoderConstrained(
-          pads[selectedPad].chord.octaveModifiers[menuIndex - 1], 1, -3, 3);
+      int &octaveModifier = pads[selectedPad].chord.octaveModifiers[menuIndex - 1];
+      octaveModifier = readEncoderConstrained(octaveModifier, 1, -5, 5);
     }
     if (encoderState && !previousEncoderState)
     {

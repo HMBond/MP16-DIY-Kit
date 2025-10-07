@@ -11,6 +11,12 @@ using namespace Stored;
 // Array for getting channel labels A,B,C,D from channel int
 const char *channelLabels[4] = {"A", "B", "C", "D"};
 
+const char *withSign(int value)
+{
+  String sign = value < 0 ? String(value) : String('+') + String(value);
+  return sign.c_str();
+}
+
 void drawFromRight(const char *str, int x, int y)
 {
   int16_t x1, y1;
@@ -119,16 +125,7 @@ void drawNoteIdentifier(int x, int y, int i)
 void drawNoteOffsetValue(int x, int y, int semitoneModifier, int i)
 {
   display.setTextColor(BLACK);
-  display.setCursor(x + 1, y + 9);
-  if (semitoneModifier < 0)
-  {
-    display.print(semitoneModifier);
-  }
-  else
-  {
-    display.print("+");
-    display.print(semitoneModifier);
-  }
+  drawFromRight(withSign(semitoneModifier), x + 13, y + 9);
   display.setTextColor(WHITE);
 }
 
@@ -136,17 +133,16 @@ void drawNote(int x, int y, int i, int selectedPad, int semitoneModifier)
 {
   if (pads[selectedPad].chord.isActive[i])
   {
-    int noteNumber = settings.rootNote +
-                     pads[selectedPad].chord.intervals[i] +
-                     pads[selectedPad].chord.octaveModifiers[i] * 12 +
-                     semitoneModifier;
-    String note = midiNoteNames[noteNumber];
-    display.setCursor(x + 32 - note.length() * 6, y + 1);
-    display.print(note);
+    int noteNumber = constrain(settings.rootNote +
+                                   pads[selectedPad].chord.intervals[i] +
+                                   pads[selectedPad].chord.octaveModifiers[i] * 12 +
+                                   semitoneModifier,
+                               12, 127);
+    drawFromRight(midiNoteNames[noteNumber], x + 32, y + 1);
   }
 }
 
-void drawChordNotes(int selectedPad, bool showAllNoteOffsets)
+void drawChordNotes(int selectedPad, bool showAllNoteOffsets, bool hideAllNoteOffsets)
 {
   for (int i = 0; i < 8; i++)
   {
@@ -156,7 +152,7 @@ void drawChordNotes(int selectedPad, bool showAllNoteOffsets)
 
     display.fillRect(x, y, 13, 17, WHITE);
     drawNoteIdentifier(x, y, i);
-    if (semitoneModifier != 0 || showAllNoteOffsets)
+    if (!hideAllNoteOffsets && (semitoneModifier != 0 || showAllNoteOffsets))
     {
       drawNoteOffsetValue(x, y, semitoneModifier, i);
     }
@@ -173,11 +169,11 @@ void drawNoteVelocities(int selectedPad)
       int x = getNoteBlockX(i);
       int y = getNoteBlockY(i);
 
-      int velocitySum = pads[selectedPad].padVelocity +
-                        pads[selectedPad].chord.velocityModifiers[i];
-      int velocity = settings.velocityScaling * velocitySum;
+      float velocitySum = (settings.velocityScaling * pads[selectedPad].padVelocity) +
+                          pads[selectedPad].chord.velocityModifiers[i];
+      int velocity = constrain(velocitySum, 1, 127);
       display.setCursor(x + 32 - String(velocity).length() * 6, y + 9);
-      display.print(constrain(velocity, 1, 128));
+      display.print(velocity);
     }
   }
 }
@@ -191,8 +187,8 @@ void drawNoteVelocityModifiers(int selectedPad)
       int x = getNoteBlockX(i);
       int y = getNoteBlockY(i);
 
-      int velocity = pads[selectedPad].chord.velocityModifiers[i];
-      drawFromRight(velocity, x + 32, y + 9);
+      int &velocity = pads[selectedPad].chord.velocityModifiers[i];
+      drawFromRight(withSign(velocity), x + 32, y + 9);
     }
   }
 }
@@ -205,18 +201,7 @@ void drawNoteOctaves(int selectedPad, int noteIndex, int menuIndex)
     int y = getNoteBlockY(i);
 
     int octave = pads[selectedPad].chord.octaveModifiers[i];
-    int noSignCorrection = octave == 0 ? 6 : 0;
-    display.setCursor(x + 20 + noSignCorrection, y + 9);
-
-    if (octave < 1)
-    {
-      display.print(octave);
-    }
-    else
-    {
-      display.print("+");
-      display.print(octave);
-    }
+    drawFromRight(withSign(octave), x + 32, y + 9);
 
     if (i == noteIndex)
     {

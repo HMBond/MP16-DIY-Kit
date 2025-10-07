@@ -139,10 +139,11 @@ namespace Midi
 
   void stopNote(int pad, int j)
   {
-    int note = settings.rootNote +
-               pads[pad].chord.intervals[j] +
-               pads[pad].chord.octaveModifiers[j] * 12 +
-               pads[pad].chord.semitoneModifiers[j];
+    int note = constrain(settings.rootNote +
+                             pads[pad].chord.intervals[j] +
+                             pads[pad].chord.octaveModifiers[j] * 12 +
+                             pads[pad].chord.semitoneModifiers[j],
+                         12, 127);
 
     switch (pads[pad].chord.channel[j])
     {
@@ -173,14 +174,15 @@ namespace Midi
 
   void playNote(int pad, int j)
   {
-    int note = settings.rootNote +
-               pads[pad].chord.intervals[j] +
-               pads[pad].chord.octaveModifiers[j] * 12 +
-               pads[pad].chord.semitoneModifiers[j];
-    int velocitySum = pads[pad].padVelocity +
-                      pads[pad].chord.velocityModifiers[j] +
-                      random(-pads[pad].velocityRandom, pads[pad].velocityRandom);
-    int velocity = constrain(settings.velocityScaling * velocitySum, 1, 128);
+    int note = constrain(settings.rootNote +
+                             pads[pad].chord.intervals[j] +
+                             pads[pad].chord.octaveModifiers[j] * 12 +
+                             pads[pad].chord.semitoneModifiers[j],
+                         12, 127);
+    float velocitySum = (settings.velocityScaling * pads[pad].padVelocity) +
+                        pads[pad].chord.velocityModifiers[j] +
+                        random(-pads[pad].velocityRandom, pads[pad].velocityRandom);
+    int velocity = constrain(velocitySum, 1, 127);
 
     switch (pads[pad].chord.channel[j])
     {

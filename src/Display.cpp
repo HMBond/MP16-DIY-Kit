@@ -72,9 +72,9 @@ namespace Display
   {
     drawSelectedPad(selectedPad);
     drawFromRight("Velocity Offset", 128, 0);
-    drawChordNotes(selectedPad);
-    drawNoteVelocityModifiers(selectedPad);
+    drawChordNotes(selectedPad, false, true);
     drawRightBottomCornerSelector(noteIndex, menuIndex);
+    drawNoteVelocityModifiers(selectedPad);
   }
 
   void drawNoteOffsetMenu(int selectedPad, int noteIndex, int menuIndex)
