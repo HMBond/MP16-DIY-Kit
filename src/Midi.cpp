@@ -140,18 +140,19 @@ void playChannelNote(int channelNoteCounts[], int note, int velocity,
   sendNoteOn(note, velocity, midiChannel);
 }
 
-void playNote(int pad, int j) {
-  int note = constrain(settings.rootNote + pads[pad].chord.intervals[j] +
-                           pads[pad].chord.octaveModifiers[j] * 12 +
-                           pads[pad].chord.semitoneModifiers[j],
-                       12, 127);
+void playNote(int padIndex, int noteIndex) {
+  int note =
+      constrain(settings.rootNote + pads[padIndex].chord.intervals[noteIndex] +
+                    pads[padIndex].chord.octaveModifiers[noteIndex] * 12 +
+                    pads[padIndex].chord.semitoneModifiers[noteIndex],
+                12, 127);
   float velocitySum =
-      (settings.velocityScaling * pads[pad].padVelocity) +
-      pads[pad].chord.velocityModifiers[j] +
-      random(-pads[pad].velocityRandom, pads[pad].velocityRandom);
+      (settings.velocityScaling * pads[padIndex].padVelocity) +
+      pads[padIndex].chord.velocityModifiers[noteIndex] +
+      random(-pads[padIndex].velocityRandom, pads[padIndex].velocityRandom);
   int velocity = constrain(velocitySum, 1, 127);
 
-  switch (pads[pad].chord.channel[j]) {
+  switch (pads[padIndex].chord.channel[noteIndex]) {
     case 0:
       playChannelNote(activeNotes.channelA, note, velocity,
                       settings.midiOutputAChannel);
@@ -171,18 +172,18 @@ void playNote(int pad, int j) {
   }
 }
 
-void stopChord(int i) {
-  for (int j = 0; j < 8; j++) {
-    if (pads[i].chord.isActive[j]) {
-      stopNote(i, j);
+void stopChord(int padIndex) {
+  for (int note = 0; note < 8; note++) {
+    if (pads[padIndex].chord.isActive[note]) {
+      stopNote(padIndex, note);
     }
   }
 }
 
-void playChord(int i) {
-  for (int j = 0; j < 8; j++) {
-    if (pads[i].chord.isActive[j]) {
-      playNote(i, j);
+void playChord(int padIndex) {
+  for (int noteIndex = 0; noteIndex < 8; noteIndex++) {
+    if (pads[padIndex].chord.isActive[noteIndex]) {
+      playNote(padIndex, noteIndex);
     }
   }
 }

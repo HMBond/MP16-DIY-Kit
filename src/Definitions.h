@@ -17,6 +17,7 @@ struct Settings {
   uint32_t shiftColor = 0xFF0000;
   int ledBrightness = 100;
   bool mute = false;
+  bool sustain = false;
 };
 
 // Chord struct

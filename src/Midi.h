@@ -15,7 +15,7 @@ extern ActiveNotes activeNotes;
 
 void killAllNotes();
 void checkMidiIn();
-void stopChord(int i);
-void playChord(int i);
+void stopChord(int pad);
+void playChord(int pad);
 
 #endif

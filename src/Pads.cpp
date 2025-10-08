@@ -93,12 +93,9 @@ void handleKeyChanges(int &screenIndex, int &menuIndex,
     }
 
     // Key is released
-    if (!keyStates[i] && previousKeyStates[i]) {
-      if (!shiftPressedAtKeyDown[i]) {
-        if (!midiStates[i] && !settings.mute) {
-          padStates[i] = false;
-        }
-      }
+    if (!keyStates[i] && previousKeyStates[i] && !shiftPressedAtKeyDown[i] &&
+        !midiStates[i] && !settings.mute) {
+      padStates[i] = false;
     }
 
     // Check if pads get triggered by MIDI IN
@@ -112,8 +109,11 @@ void handleKeyChanges(int &screenIndex, int &menuIndex,
 
     // Finally check rising or falling edges in pad playing status
     if (padStates[i] && !previousPadStates[i]) {
+      if (settings.sustain) {
+        killAllNotes();
+      }
       playChord(i);
-    } else if (!padStates[i] && previousPadStates[i]) {
+    } else if (!padStates[i] && previousPadStates[i] && !settings.sustain) {
       stopChord(i);
     }
   }

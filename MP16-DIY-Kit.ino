@@ -50,7 +50,7 @@ void updateMenu() {
       scaleMenu();
       break;
     case 2:
-      // sustainMenu();
+      sustainMenu();
       break;
     case 3:
       muteMenu();
@@ -149,6 +149,13 @@ void noteActiveMenu() {
         !pads[selectedPad].chord.isActive[noteIndex];
   }
   drawNoteActiveMenu(selectedPad, noteIndex);
+}
+
+void sustainMenu() {
+  settings.sustain = !settings.sustain;
+  screenIndex = -1;
+  killAllNotes();
+  drawMessage(settings.sustain ? "Sustain ON" : "Sustain OFF", 500);
 }
 
 void muteMenu() {
@@ -351,6 +358,8 @@ void updatePixels() {
       pixels.setPixelColor(i + 1, pads[i].color);
     } else if (settings.mute) {
       pixels.setPixelColor(i + 1, dimColor(0xFF0000, dimFactor));
+    } else if (settings.sustain) {
+      pixels.setPixelColor(i + 1, dimColor(0x00FF00, dimFactor));
     } else {
       pixels.setPixelColor(i + 1, dimColor(pads[i].color, dimFactor));
     }
