@@ -49,11 +49,18 @@ void drawNoteActiveMenu(int selectedPad, int noteIndex) {
   drawNoteBlockSelector(noteIndex);
 }
 
-void drawRandomVelocityMenu(int selectedPad) {
+void drawVelocityRandomMenu(int selectedPad) {
   drawSelectedPad(selectedPad);
   display.setCursor(4, 28);
   display.print("Velocity Random: ");
-  display.print(pads[selectedPad].velocityRandom);
+  drawFromRight(pads[selectedPad].velocityRandom, 126, 28);
+}
+
+void drawTimingVariationMenu(int selectedPad) {
+  drawSelectedPad(selectedPad);
+  display.setCursor(4, 28);
+  display.print("Timing Variation: ");
+  drawFromRight(pads[selectedPad].timingVariation, 126, 28);
 }
 
 void drawNoteVelocityMenu(int selectedPad, int noteIndex, int menuIndex) {

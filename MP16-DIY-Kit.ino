@@ -30,6 +30,8 @@ void loop() {
   updateMenu();
   checkMidiIn();
   handleKeyChanges(screenIndex, menuIndex, copyMenuScreenIndex);
+  checkStoppingQueue();
+  checkPlayingQueue();
   updatePixels();
 }
 
@@ -56,10 +58,10 @@ void updateMenu() {
       muteMenu();
       break;
     case 4:
-      randomVelocityMenu();
+      velocityRandomMenu();
       break;
     case 5:
-      // randomTimingMenu();
+      timingVariationMenu();
       break;
     case 6:
       degreeMenu();
@@ -164,10 +166,16 @@ void muteMenu() {
   drawMessage(settings.mute ? "Mute ON" : "Mute OFF", 500);
 }
 
-void randomVelocityMenu() {
-  pads[selectedPad].velocityRandom = readEncoderFast(
-      pads[selectedPad].velocityRandom, 1, 0, VELOCITY_RANDOM_MAX);
-  drawRandomVelocityMenu(selectedPad);
+void velocityRandomMenu() {
+  pads[selectedPad].velocityRandom =
+      readEncoderFast(pads[selectedPad].velocityRandom, 1, 0, 127);
+  drawVelocityRandomMenu(selectedPad);
+}
+
+void timingVariationMenu() {
+  pads[selectedPad].timingVariation =
+      readEncoderFast(pads[selectedPad].timingVariation, 1, -50, 50);
+  drawTimingVariationMenu(selectedPad);
 }
 
 void noteVelocityMenu() {

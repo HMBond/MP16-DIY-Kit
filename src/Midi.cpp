@@ -1,5 +1,6 @@
 #include "Midi.h"
 
+#include "../lib/Queue.h"
 #include "Hardware.h"
 #include "Stored.h"
 
@@ -172,18 +173,87 @@ void playNote(int padIndex, int noteIndex) {
   }
 }
 
+struct QueNote {
+  int padIndex;
+  int noteIndex;
+  int delayTime;
+};
+
+unsigned long stopTimestamp = 0;  // used for chord stop timing variation
+unsigned long playTimestamp = 0;  // used for chord play timing variation
+Queue<QueNote> stopQueue(1000);
+Queue<QueNote> playQueue(1000);
+
 void stopChord(int padIndex) {
-  for (int note = 0; note < 8; note++) {
-    if (pads[padIndex].chord.isActive[note]) {
-      stopNote(padIndex, note);
+  if (pads[padIndex].timingVariation == 0) {
+    for (int noteIndex = 0; noteIndex < 8; noteIndex++) {
+      if (pads[padIndex].chord.isActive[noteIndex]) {
+        stopNote(padIndex, noteIndex);
+      }
+    }
+  }
+  if (pads[padIndex].timingVariation > 0) {
+    for (int noteIndex = 0; noteIndex < 8; noteIndex++) {
+      if (pads[padIndex].chord.isActive[noteIndex]) {
+        stopQueue.push(
+            QueNote{padIndex, noteIndex, pads[padIndex].timingVariation * 10});
+      }
+    }
+  }
+  if (pads[padIndex].timingVariation < 0) {
+    for (int noteIndex = 7; noteIndex >= 0; noteIndex--) {
+      if (pads[padIndex].chord.isActive[noteIndex]) {
+        stopQueue.push(
+            QueNote{padIndex, noteIndex, pads[padIndex].timingVariation * -10});
+      }
+    }
+  }
+}
+
+void checkStoppingQueue() {
+  if (stopQueue.count() > 0) {
+    auto [padIndex, noteIndex, delayTime] = stopQueue.peek();
+    if (stopTimestamp + delayTime < millis()) {
+      stopQueue.pop();
+      stopNote(padIndex, noteIndex);
+      stopTimestamp = millis();
     }
   }
 }
 
 void playChord(int padIndex) {
-  for (int noteIndex = 0; noteIndex < 8; noteIndex++) {
-    if (pads[padIndex].chord.isActive[noteIndex]) {
+  if (pads[padIndex].timingVariation == 0) {
+    for (int noteIndex = 0; noteIndex < 8; noteIndex++) {
+      if (pads[padIndex].chord.isActive[noteIndex]) {
+        playNote(padIndex, noteIndex);
+      }
+    }
+  }
+  if (pads[padIndex].timingVariation > 0) {
+    for (int noteIndex = 0; noteIndex < 8; noteIndex++) {
+      if (pads[padIndex].chord.isActive[noteIndex]) {
+        playQueue.push(
+            QueNote{padIndex, noteIndex, pads[padIndex].timingVariation * 10});
+      }
+    }
+  }
+  if (pads[padIndex].timingVariation < 0) {
+    for (int noteIndex = 7; noteIndex >= 0; noteIndex--) {
+      if (pads[padIndex].chord.isActive[noteIndex]) {
+        playQueue.push(
+            QueNote{padIndex, noteIndex, pads[padIndex].timingVariation * -10});
+      }
+    }
+  }
+}
+
+void checkPlayingQueue() {
+  if (playQueue.count() > 0) {
+    auto [padIndex, noteIndex, delayTime] = playQueue.peek();
+    if (playTimestamp + delayTime < millis()) {
+      playQueue.pop();
       playNote(padIndex, noteIndex);
+      playTimestamp = millis();
     }
   }
 }

@@ -17,5 +17,7 @@ void killAllNotes();
 void checkMidiIn();
 void stopChord(int pad);
 void playChord(int pad);
+void checkStoppingQueue();
+void checkPlayingQueue();
 
 #endif

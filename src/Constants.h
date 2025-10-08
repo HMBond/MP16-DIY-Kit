@@ -32,7 +32,6 @@ constexpr int ENCODER_FAST_FACTOR = 4;
 // MIDI Constants
 constexpr int MIDI_CHANNELS = 16;
 constexpr int NOTE_COUNT = 128;
-constexpr int VELOCITY_RANDOM_MAX = 100;
 
 // Matrix Constants
 constexpr int ROW_COUNT = 4;

@@ -37,8 +37,6 @@ struct Chord {
 struct Pad {
   uint32_t color = 0xFFAA00;
   int triggerNote = 0;
-  int chokeGroup = 0;
-  bool hold = false;
   int arpType = 0;  // 0 = off, 1 = up, 2 = down, 3 = both up & down, 4 =
                     // random, 5 = brownian
   int arpSpeed = 1;
@@ -46,7 +44,7 @@ struct Pad {
   int arpOctaves = 1;
   int padVelocity = 65;
   int velocityRandom = 0;
-  unsigned long timingVariation = 0;
+  int timingVariation = 0;
   Chord chord;
 };
 
