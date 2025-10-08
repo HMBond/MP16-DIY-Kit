@@ -9,7 +9,8 @@ void drawCentered(const char *str, int y);
 void drawCentered(String &str, int y);
 void drawSlots(int selectedSlot);
 void drawSelectedPad(int selectedPad);
-void drawChordNotes(int pad, bool showAllNoteOffsets = false, bool hideAllNoteOffsets = false);
+void drawChordNotes(int pad, bool showAllNoteOffsets = false,
+                    bool hideAllNoteOffsets = false);
 void drawNoteVelocities(int selectedPad);
 void drawNoteVelocityModifiers(int selectedPad);
 void drawNoteOctaves(int selectedPad, int noteIndex, int menuIndex);

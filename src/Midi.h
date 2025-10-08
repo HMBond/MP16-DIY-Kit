@@ -1,27 +1,21 @@
 #ifndef Midi_h
 #define Midi_h
 
-#include "Stored.h"
 #include "Hardware.h"
+#include "Stored.h"
 
-using namespace Stored;
-using namespace Hardware;
+extern bool padStates[PADS_COUNT];
+extern bool previousPadStates[PADS_COUNT];
+extern bool midiStates[PADS_COUNT];
+extern bool previousMidiStates[PADS_COUNT];
 
-namespace Midi
-{
-  extern bool padStates[PADS_COUNT];
-  extern bool previousPadStates[PADS_COUNT];
-  extern bool midiStates[PADS_COUNT];
-  extern bool previousMidiStates[PADS_COUNT];
+// Integer array to track how many keys are referencing each MIDI note on each
+// channel Replace individual note count arrays with the new struct
+extern ActiveNotes activeNotes;
 
-  // Integer array to track how many keys are referencing each MIDI note on each channel
-  // Replace individual note count arrays with the new struct
-  extern ActiveNotes activeNotes;
-
-  void killAllNotes();
-  void checkMidiIn();
-  void stopChord(int i);
-  void playChord(int i);
-}
+void killAllNotes();
+void checkMidiIn();
+void stopChord(int i);
+void playChord(int i);
 
 #endif

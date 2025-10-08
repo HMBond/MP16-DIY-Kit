@@ -46,179 +46,179 @@ constexpr int SLOT_COUNT = 4;
 const Chord initialPreset[16] = {
     {
         // Chord 1
-        0,                                                     // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                            // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                             // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // semitoneModifiers
-        {true, true, true, false, false, false, false, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                               // channel
+        0,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, false, false, false, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 2
-        1,                                                     // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                            // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                             // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // semitoneModifiers
-        {true, true, true, false, false, false, false, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                               // channel
+        1,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, false, false, false, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 3
-        2,                                                     // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                            // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                             // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // semitoneModifiers
-        {true, true, true, false, false, false, false, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                               // channel
+        2,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, false, false, false, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 4
-        3,                                                     // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                            // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                             // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // semitoneModifiers
-        {true, true, true, false, false, false, false, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                               // channel
+        3,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, false, false, false, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 5
-        4,                                                     // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                            // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                             // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // semitoneModifiers
-        {true, true, true, false, false, false, false, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                               // channel
+        4,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, false, false, false, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 6
-        5,                                                     // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                            // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                             // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // semitoneModifiers
-        {true, true, true, false, false, false, false, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                               // channel
+        5,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, false, false, false, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 7
-        6,                                                     // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                            // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                             // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // semitoneModifiers
-        {true, true, true, false, false, false, false, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                               // channel
+        6,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, false, false, false, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 8
-        0,                                                     // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                            // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                             // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // semitoneModifiers
-        {true, true, true, false, false, false, false, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                              // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                               // channel
+        0,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, false, false, false, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 9
-        0,                                                    // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                           // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                            // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // semitoneModifiers
-        {true, true, true, true, false, false, false, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                              // channel
+        0,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, true, false, false, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 10
-        0,                                                   // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                          // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                           // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                            // semitoneModifiers
-        {true, true, true, true, true, false, false, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                            // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                            // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                             // channel
+        0,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, true, true, false, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 11
+        0,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {true, true, true, true, true, true, false, false},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
+    },
+    {
+        // Chord 12
         0,                                                  // degree
         {0, 2, 4, 6, 8, 10, 12, 0},                         // intervals
         {0, 0, 0, 0, 0, 0, 0, -1},                          // octaveModifiers
         {0, 0, 0, 0, 0, 0, 0, 0},                           // semitoneModifiers
-        {true, true, true, true, true, true, false, false}, // isActive
+        {true, true, true, true, true, true, true, false},  // isActive
         {0, 0, 0, 0, 0, 0, 0, 0},                           // velocityModifiers
         {0, 0, 0, 0, 0, 0, 0, 0},                           // timing
         {0, 0, 0, 0, 0, 0, 0, 1}                            // channel
     },
     {
-        // Chord 12
-        0,                                                 // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                        // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                         // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                          // semitoneModifiers
-        {true, true, true, true, true, true, true, false}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                          // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                          // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                           // channel
-    },
-    {
         // Chord 13
-        1,                                                    // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                           // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                            // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // semitoneModifiers
-        {false, true, true, true, false, false, false, true}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                              // channel
+        1,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {false, true, true, true, false, false, false, true},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 14
-        2,                                                    // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                           // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                            // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // semitoneModifiers
-        {false, true, true, true, false, false, false, true}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                              // channel
+        2,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {false, true, true, true, false, false, false, true},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 15
-        3,                                                    // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                           // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                            // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // semitoneModifiers
-        {false, true, true, true, false, false, false, true}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                              // channel
+        3,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {false, true, true, true, false, false, false, true},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     },
     {
         // Chord 16
-        4,                                                    // degree
-        {0, 2, 4, 6, 8, 10, 12, 0},                           // intervals
-        {0, 0, 0, 0, 0, 0, 0, -1},                            // octaveModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // semitoneModifiers
-        {false, true, true, true, false, false, false, true}, // isActive
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // velocityModifiers
-        {0, 0, 0, 0, 0, 0, 0, 0},                             // timing
-        {0, 0, 0, 0, 0, 0, 0, 1}                              // channel
+        4,                           // degree
+        {0, 2, 4, 6, 8, 10, 12, 0},  // intervals
+        {0, 0, 0, 0, 0, 0, 0, -1},   // octaveModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},    // semitoneModifiers
+        {false, true, true, true, false, false, false, true},  // isActive
+        {0, 0, 0, 0, 0, 0, 0, 0},  // velocityModifiers
+        {0, 0, 0, 0, 0, 0, 0, 0},  // timing
+        {0, 0, 0, 0, 0, 0, 0, 1}   // channel
     }};
 
 #endif
