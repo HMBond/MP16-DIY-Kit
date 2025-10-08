@@ -33,6 +33,7 @@ namespace Hardware
   int readEncoder(int current, int itemCount);
   int readEncoderConstrained(int current, int step, int min, int max);
   float readEncoderFast(float current, float step, float min, float max);
+  uint32_t dimColor(uint32_t color, float factor);
 }
 
 #endif

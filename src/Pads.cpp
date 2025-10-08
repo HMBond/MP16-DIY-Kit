@@ -12,7 +12,7 @@ namespace Pads
 {
   int selectedPad = 0;
   int selectedSlot = 0;
-  int copyIndex = -1;
+  int copySource = -1;
   bool shiftState = false;
   bool previousShiftState = false;
   bool encoderState = false;
@@ -23,9 +23,11 @@ namespace Pads
 
   void copyPad(int target, int source)
   {
+    killAllNotes();
     pads[target].chord = pads[source].chord;
-    String message = "Copied " + String(source + 1) + String(target + 1);
+    String message = "Copied pad " + String(source + 1) + " to " + String(target + 1);
     showMessage(message);
+    copySource = -1;
   }
 
   // Checking all keys to update their input
@@ -61,7 +63,7 @@ namespace Pads
     digitalWrite(ROW3_PIN, HIGH);
   }
 
-  void actOnPadStates(int &screenIndex, int &menuIndex)
+  void handleKeyChanges(int &screenIndex, int &menuIndex, int copyMenuScreenIndex)
   {
     // Return to main menu is shift is pressed
     if (shiftState && !previousShiftState)
@@ -71,38 +73,44 @@ namespace Pads
 
     for (int i = 0; i < PADS_COUNT; i++)
     {
-      // Check for rising or falling edges in the keys
+      // Key is pressed
       if (keyStates[i] && !previousKeyStates[i])
-      { // Key is pressed
+      {
+        // Using a SHIFT shortcut
         if (shiftState)
-        { // Check if we're using a SHIFT shortcut
+        {
           shiftPressedAtKeyDown[i] = true;
           screenIndex = i;
-          if (i == 13)
-          {
-            copyIndex = selectedPad;
-          }
           menuIndex = 0;
-        }
-        else if (screenIndex == 13)
-        { // Check whether we're copying a pad
-          killAllNotes();
-          if (copyIndex != -1 && copyIndex != i)
+          // Remember the last selected pad when entering copy menu
+          if (i == copyMenuScreenIndex)
           {
-            copyPad(i, copyIndex);
-            copyIndex = -1;
+            copySource = selectedPad;
           }
-          screenIndex = -1;
         }
         else
-        { // Change pad state
+        {
           shiftPressedAtKeyDown[i] = false;
           padStates[i] = true;
           selectedPad = i;
         }
+
+        // Copy source pad to selected target pad (i)
+        if (!shiftState && screenIndex == copyMenuScreenIndex)
+        {
+          killAllNotes();
+          if (copySource != -1 && copySource != i)
+          {
+            copyPad(i, copySource);
+            copySource = -1;
+          }
+          screenIndex = -1;
+        }
       }
-      else if (!keyStates[i] && previousKeyStates[i])
-      { // Key is released
+
+      // Key is released
+      if (!keyStates[i] && previousKeyStates[i])
+      {
         if (!shiftPressedAtKeyDown[i])
         {
           for (int j = 0; j < 8; j++)

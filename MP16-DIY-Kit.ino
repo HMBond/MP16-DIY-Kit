@@ -12,20 +12,18 @@ using namespace Stored;
 using namespace Display;
 using namespace Pads;
 
-// Menu and selection indices
-int screenIndex = -1;      // Which screen is shown?
-int menuIndex = 0;         // Which menu item is selected?
-bool editMenuItem = false; // Edit the selected menu item
-int noteIndex = 0;         // Which of the 8 notes in a chord to select
-
-// How much to dim the LED colors
-float dimFactor = 0.3;
+int screenIndex = -1;               // Which screen is shown?
+const int copyMenuScreenIndex = 13; // shared screen index for the copy menu
+int menuIndex = 0;                  // Which menu item is selected?
+bool editMenuItem = false;          // Edit the selected menu item
+int noteIndex = 0;                  // Which of the 8 notes in a chord to select
+float dimFactor = 0.3;              // How much to dim the LED colors
 
 void setup()
 {
 
   Stored::load();
-  setAllChordIntervals();
+  setAllNoteIntervals();
   initHardware(Stored::settings);
 
   pinMode(RX_PIN, INPUT_PULLUP);
@@ -41,10 +39,9 @@ void loop()
 {
   checkKeys();
   updateMenu();
-  updateMIDI();
-  actOnPadStates(screenIndex, menuIndex);
+  checkMidiIn();
+  handleKeyChanges(screenIndex, menuIndex, copyMenuScreenIndex);
   updatePixels();
-  updateDisplay(screenIndex, selectedPad, menuIndex, selectedSlot, noteIndex, editMenuItem);
 }
 
 // ********************************** Loop Functions ************************************
@@ -52,48 +49,75 @@ void loop()
 // Main function to update the menu
 void updateMenu()
 {
+  Hardware::display.clearDisplay();
   switch (screenIndex)
   {
-  case -2: // Load preset
+  case -2:
     menuLoad();
+    Display::drawLoadScreen(selectedSlot);
     break;
-  case -1: // Main screen
+  case -1:
     menuMain();
+    Display::drawMainMenu(selectedPad);
     break;
-  case 0: // Edit Root Note
+  case 0:
     menuRoot();
+    Display::drawRootMenu();
     break;
-  case 1: // Edit Scale
+  case 1:
     menuScale();
+    Display::drawScaleMenu();
     break;
-  case 2: // Edit Degree
-    menuDegree();
+  case 2:
+    // menuSustain()
     break;
-  case 3: // Edit Active Notes
-    menuNotes();
+  case 3:
+    // menuMute()
     break;
-  case 4: // Edit Velocity Randomness
-    menuVariation();
+  case 4:
+    menuChordDegree();
+    Display::drawDegreeMenu(selectedPad);
     break;
-  case 5: // Edit Velocity
-    menuVelocity();
+  case 5:
+    menuChordRandomVelocity();
+    Display::drawVariationMenu(selectedPad);
     break;
-  case 6: // Edit Interval Mods
-    menuNoteOffset();
+  case 6:
+    // menuTime()
     break;
-  case 7: // Edit Octave
-    menuOctaves();
+  case 7:
+    menuNoteActive();
+    Display::drawNoteMenu(selectedPad, noteIndex);
     break;
-  case 11: // Note Channel
+  case 8:
     menuNoteChannel();
+    Display::drawChannelMenu(selectedPad, noteIndex, menuIndex);
     break;
-  case 14: // Edit MIDI Settings
+  case 9:
+    menuNoteVelocity();
+    Display::drawVelocityMenu(selectedPad, noteIndex, menuIndex);
+    break;
+  case 10:
+    menuNoteOffset();
+    Display::drawNoteOffsetMenu(selectedPad, noteIndex, menuIndex);
+    break;
+  case 11:
+    menuNoteOctaves();
+    Display::drawOctaveMenu(selectedPad, noteIndex, menuIndex);
+    break;
+  case copyMenuScreenIndex:
+    Display::drawCopyMenu(selectedPad);
+    break;
+  case 14:
     menuMidi();
+    Display::drawMidiMenu(menuIndex, editMenuItem);
     break;
-  case 15: // Saving
+  case 15:
     menuSave();
+    Display::drawSaveMenu(selectedSlot);
     break;
   }
+  Hardware::display.display();
 }
 
 void menuLoad()
@@ -135,22 +159,22 @@ void menuScale()
   {
     killAllNotes();
     settings.scaleIndex = readEncoder(settings.scaleIndex, SCALE_COUNT);
-    setAllChordIntervals();
+    setAllNoteIntervals();
   }
 }
 
-void menuDegree()
+void menuChordDegree()
 {
   if (encoderValue != 0)
   {
     killAllNotes();
     pads[selectedPad].chord.degree = readEncoderConstrained(
         pads[selectedPad].chord.degree, 1, 0, 6);
-    setChordIntervals(selectedPad);
+    setNoteIntervals(selectedPad);
   }
 }
 
-void menuNotes()
+void menuNoteActive()
 {
   noteIndex = readEncoder(noteIndex, CHORD_NOTE_COUNT);
   if (encoderState && !previousEncoderState)
@@ -160,13 +184,13 @@ void menuNotes()
   }
 }
 
-void menuVariation()
+void menuChordRandomVelocity()
 {
   pads[selectedPad].velocityRandom = readEncoderFast(
       pads[selectedPad].velocityRandom, 1, 0, VELOCITY_RANDOM_MAX);
 }
 
-void menuVelocity()
+void menuNoteVelocity()
 {
   if (menuIndex == 0)
   {
@@ -216,7 +240,7 @@ void menuNoteOffset()
   }
 }
 
-void menuOctaves()
+void menuNoteOctaves()
 {
   if (menuIndex == 0)
   {
@@ -334,29 +358,34 @@ void menuSave()
   }
 }
 
-// Menu helper function for updating all chord intervals after a scale change
-void setAllChordIntervals()
+// Helper function for updating all note intervals after a scale change
+void setAllNoteIntervals()
 {
-  for (int i = 0; i < PADS_COUNT; i++)
+  for (int padIndex = 0; padIndex < PADS_COUNT; padIndex++)
   {
-    setChordIntervals(i);
+    setNoteIntervals(padIndex);
   }
 }
 
-// Menu helper function for updating chord intervals after a scale or degree change
-void setChordIntervals(int i)
+void setNoteIntervals(int padIndex)
 {
-  for (int j = 0; j < 7; j++)
+  for (int noteIndex = 0; noteIndex < 8; noteIndex++)
   {
-    pads[i].chord.intervals[j] = degreeToScaleInterval(
-        pads[i].chord.degree + chordDegrees[j], scales[settings.scaleIndex], 7);
+    if (noteIndex == 7) // set 8th note to root
+    {
+      pads[padIndex].chord.intervals[noteIndex] = 0;
+    }
+    else
+    {
+      pads[padIndex].chord.intervals[noteIndex] = getInterval(
+          pads[padIndex].chord.degree + chordDegrees[noteIndex],
+          scales[settings.scaleIndex],
+          7);
+    }
   }
-  pads[i].chord.intervals[7] = pads[i].chord.intervals[0];
 }
 
-// Menu helper function to calculate interval within the scale,
-// accounting for octave shifts
-int degreeToScaleInterval(int degree, int scale[], int scaleLength)
+int getInterval(int degree, int scale[], int scaleLength)
 {
   int baseDegree = degree % scaleLength;
   int octaveShift = (degree / scaleLength) * 12;
@@ -368,12 +397,12 @@ void updatePixels()
 {
   pixels.clear();
 
-  if (shiftState)
+  if (shiftState) // Shift key is pressed
   {
-    // Shift key lighting
     pixels.setPixelColor(0, settings.shiftColor);
   }
-  else if (screenIndex != -1)
+
+  if (!shiftState && screenIndex != -1) // Some menu is in operation
   {
     // Shift key lighting dimly
     pixels.setPixelColor(0, dimColor(settings.shiftColor, dimFactor));
@@ -396,22 +425,4 @@ void updatePixels()
     }
   }
   pixels.show();
-}
-
-// Helper function for dimming a pixel color into a dimmer color
-uint32_t dimColor(uint32_t color, float factor)
-{
-  // Extract the red, green, and blue components
-  uint8_t red = (color >> 16) & 0xFF;  // Extract red
-  uint8_t green = (color >> 8) & 0xFF; // Extract green
-  uint8_t blue = color & 0xFF;         // Extract blue
-
-  // Scale each component by the factor
-  red = static_cast<uint8_t>(red * factor);
-  green = static_cast<uint8_t>(green * factor);
-  blue = static_cast<uint8_t>(blue * factor);
-
-  // Reassemble the dimmed color
-  uint32_t dimmedColor = (red << 16) | (green << 8) | blue;
-  return dimmedColor;
 }

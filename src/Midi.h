@@ -19,7 +19,7 @@ namespace Midi
   extern ActiveNotes activeNotes;
 
   void killAllNotes();
-  void updateMIDI();
+  void checkMidiIn();
   void stopChord(int i);
   void playChord(int i);
 }

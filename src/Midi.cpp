@@ -86,7 +86,7 @@ namespace Midi
     }
   }
 
-  void updateMIDI()
+  void checkMidiIn()
   {
     for (int i = 0; i < PADS_COUNT; i++)
     {

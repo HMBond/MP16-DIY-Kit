@@ -140,69 +140,11 @@ namespace Display
     }
   }
 
-  void drawSaveScreen(int selectedSlot)
+  void drawSaveMenu(int selectedSlot)
   {
     display.setCursor(40, 0);
     display.print("Save to:");
     drawSlots(selectedSlot);
-  }
-
-  // Main function for updating the OLED display
-  void updateDisplay(int screenIndex,
-                     int selectedPad,
-                     int menuIndex,
-                     int selectedSlot,
-                     int noteIndex,
-                     bool editMenuItem)
-  {
-    display.clearDisplay();
-    switch (screenIndex)
-    {
-    case -2:
-      drawLoadScreen(selectedSlot);
-      break;
-    case -1:
-      drawMainMenu(selectedPad);
-      break;
-    case 0:
-      drawRootMenu();
-      break;
-    case 1:
-      drawScaleMenu();
-      break;
-    case 2:
-      drawDegreeMenu(selectedPad);
-      break;
-    case 3:
-      drawNoteMenu(selectedPad, noteIndex);
-      break;
-    case 4:
-      drawVariationMenu(selectedPad);
-      break;
-    case 5:
-      drawVelocityMenu(selectedPad, noteIndex, menuIndex);
-      break;
-    case 6:
-      drawNoteOffsetMenu(selectedPad, noteIndex, menuIndex);
-      break;
-    case 7:
-      drawOctaveMenu(selectedPad, noteIndex, menuIndex);
-      break;
-    case 11:
-      drawChannelMenu(selectedPad, noteIndex, menuIndex);
-      break;
-    case 13:
-      drawCopyMenu(selectedPad);
-      break;
-    case 14:
-      drawMidiMenu(menuIndex, editMenuItem);
-      break;
-    case 15:
-      drawSaveScreen(selectedSlot);
-      break;
-    }
-
-    display.display();
   }
 
   void showMessage(String message, int duration)

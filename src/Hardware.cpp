@@ -181,4 +181,22 @@ namespace Hardware
     encoderValue = 0;
     return nextValue;
   }
+
+  // Helper function for dimming a pixel color into a dimmer color
+  uint32_t dimColor(uint32_t color, float factor)
+  {
+    // Extract the red, green, and blue components
+    uint8_t red = (color >> 16) & 0xFF;  // Extract red
+    uint8_t green = (color >> 8) & 0xFF; // Extract green
+    uint8_t blue = color & 0xFF;         // Extract blue
+
+    // Scale each component by the factor
+    red = static_cast<uint8_t>(red * factor);
+    green = static_cast<uint8_t>(green * factor);
+    blue = static_cast<uint8_t>(blue * factor);
+
+    // Reassemble the dimmed color
+    uint32_t dimmedColor = (red << 16) | (green << 8) | blue;
+    return dimmedColor;
+  }
 }

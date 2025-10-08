@@ -23,7 +23,7 @@ namespace Pads
   extern bool shiftPressedAtKeyDown[PADS_COUNT];
 
   void checkKeys();
-  void actOnPadStates(int &screenIndex, int &menuIndex);
+  void handleKeyChanges(int &screenIndex, int &menuIndex, int copyMenuScreenIndex);
 }
 
 #endif
