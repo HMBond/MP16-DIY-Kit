@@ -5,12 +5,12 @@
 #include "./src/Pads.h"
 #include "./src/Stored.h"
 
-int screenIndex = -1;               // Which screen is shown?
-const int copyMenuScreenIndex = 13; // screen index for the copy menu
-int menuIndex = 0;                  // Which menu item is selected?
-bool editMenuItem = false;          // Edit the selected menu item
-int noteIndex = 0;                  // Which of the 8 notes in a chord to select
-float dimFactor = 0.3;              // How much to dim the LED colors
+int screenIndex = -1;                // Which screen is shown?
+const int copyMenuScreenIndex = 13;  // screen index for the copy menu
+int menuIndex = 0;                   // Which menu item is selected?
+bool editMenuItem = false;           // Edit the selected menu item
+int noteIndex = 0;                   // Selected note in menu
+float dimFactor = 0.3;               // Dim factor for NeoPixel LEDS
 
 void setup() {
   loadPreset();
@@ -37,57 +37,57 @@ void loop() {
 void updateMenu() {
   display.clearDisplay();
   switch (screenIndex) {
-  case -2:
-    loadMenu();
-    break;
-  case -1:
-    mainMenu();
-    break;
-  case 0:
-    rootMenu();
-    break;
-  case 1:
-    scaleMenu();
-    break;
-  case 2:
-    // sustainMenu()
-    break;
-  case 3:
-    // muteMenu()
-    break;
-  case 4:
-    randomVelocityMenu();
-    break;
-  case 5:
-    // randomTimingMenu()
-    break;
-  case 6:
-    degreeMenu();
-    break;
-  case 7:
-    noteActiveMenu();
-    break;
-  case 8:
-    noteChannelMenu();
-    break;
-  case 9:
-    noteVelocityMenu();
-    break;
-  case 10:
-    noteOffsetMenu();
-    break;
-  case 11:
-    noteOctavesMenu();
-    break;
-  case copyMenuScreenIndex:
-    drawCopyMenu(selectedPad);
-    break;
-  case 14:
-    midiMenu();
-    break;
-  case 15:
-    saveMenu();
-    break;
+    case -2:
+      loadMenu();
+      break;
+    case -1:
+      mainMenu();
+      break;
+    case 0:
+      rootMenu();
+      break;
+    case 1:
+      scaleMenu();
+      break;
+    case 2:
+      // sustainMenu();
+      break;
+    case 3:
+      muteMenu();
+      break;
+    case 4:
+      randomVelocityMenu();
+      break;
+    case 5:
+      // randomTimingMenu();
+      break;
+    case 6:
+      degreeMenu();
+      break;
+    case 7:
+      noteActiveMenu();
+      break;
+    case 8:
+      noteChannelMenu();
+      break;
+    case 9:
+      noteVelocityMenu();
+      break;
+    case 10:
+      noteOffsetMenu();
+      break;
+    case 11:
+      noteOctavesMenu();
+      break;
+    case copyMenuScreenIndex:
+      drawCopyMenu(selectedPad);
+      break;
+    case 14:
+      midiMenu();
+      break;
+    case 15:
+      saveMenu();
+      break;
   }
   display.display();
 }
@@ -149,6 +149,12 @@ void noteActiveMenu() {
         !pads[selectedPad].chord.isActive[noteIndex];
   }
   drawNoteActiveMenu(selectedPad, noteIndex);
+}
+
+void muteMenu() {
+  settings.mute = !settings.mute;
+  screenIndex = -1;
+  drawMessage(settings.mute ? "Mute ON" : "Mute OFF", 500);
 }
 
 void randomVelocityMenu() {
@@ -254,29 +260,29 @@ void midiMenu() {
   }
   if (editMenuItem) {
     switch (menuIndex) {
-    case 0:
-      settings.midiOutputAChannel =
-          updateMidiChannel(settings.midiOutputAChannel);
-      break;
+      case 0:
+        settings.midiOutputAChannel =
+            updateMidiChannel(settings.midiOutputAChannel);
+        break;
 
-    case 1:
-      settings.midiOutputBChannel =
-          updateMidiChannel(settings.midiOutputBChannel);
-      break;
+      case 1:
+        settings.midiOutputBChannel =
+            updateMidiChannel(settings.midiOutputBChannel);
+        break;
 
-    case 2:
-      settings.midiOutputCChannel =
-          updateMidiChannel(settings.midiOutputCChannel);
-      break;
+      case 2:
+        settings.midiOutputCChannel =
+            updateMidiChannel(settings.midiOutputCChannel);
+        break;
 
-    case 3:
-      settings.midiOutputDChannel =
-          updateMidiChannel(settings.midiOutputDChannel);
-      break;
+      case 3:
+        settings.midiOutputDChannel =
+            updateMidiChannel(settings.midiOutputDChannel);
+        break;
 
-    case 4:
-      settings.midiInChannel = updateMidiChannel(settings.midiInChannel);
-      break;
+      case 4:
+        settings.midiInChannel = updateMidiChannel(settings.midiInChannel);
+        break;
     }
   }
   drawMidiMenu(menuIndex, editMenuItem);
@@ -307,7 +313,7 @@ void setAllNoteIntervals() {
 
 void setNoteIntervals(int padIndex) {
   for (int noteIndex = 0; noteIndex < 8; noteIndex++) {
-    if (noteIndex == 7) // set 8th note to root
+    if (noteIndex == 7)  // set 8th note to root
     {
       pads[padIndex].chord.intervals[noteIndex] = 0;
     } else {
@@ -324,29 +330,32 @@ int getInterval(int degree, int scale[], int scaleLength) {
   return scale[baseDegree] + octaveShift;
 }
 
-// main function for updating the neopixels
+// main function for updating the NeoPixels
 void updatePixels() {
   pixels.clear();
 
-  if (shiftState) // Shift key is pressed
-  {
+  // Shift key is pressed
+  if (shiftState) {
     pixels.setPixelColor(0, settings.shiftColor);
   }
 
-  if (!shiftState && screenIndex != -1) // Some menu is in operation
-  {
+  // Some menu is in operation
+  if (!shiftState && screenIndex != -1) {
     // Shift key lighting dimly
     pixels.setPixelColor(0, dimColor(settings.shiftColor, dimFactor));
   }
 
   for (int i = 0; i < PADS_COUNT; i++) {
     if (i == selectedPad && !shiftState) {
+      // highlight selected pad unless shift key is pressed
       pixels.setPixelColor(i + 1, pads[i].color);
+    } else if (settings.mute) {
+      pixels.setPixelColor(i + 1, dimColor(0xFF0000, dimFactor));
     } else {
       pixels.setPixelColor(i + 1, dimColor(pads[i].color, dimFactor));
     }
 
-    if (keyStates[i] || midiStates[i]) {
+    if ((!settings.mute && keyStates[i]) || midiStates[i]) {
       pixels.setPixelColor(i + 1, 0xFFFFFF);
     }
   }

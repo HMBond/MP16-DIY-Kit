@@ -16,6 +16,7 @@ struct Settings {
   float velocityScaling = 1.0;
   uint32_t shiftColor = 0xFF0000;
   int ledBrightness = 100;
+  bool mute = false;
 };
 
 // Chord struct

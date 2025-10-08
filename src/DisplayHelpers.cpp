@@ -10,7 +10,7 @@
 const char *channelLabels[4] = {"A", "B", "C", "D"};
 
 const char *withSign(int value) {
-  String sign = value < 0 ? String(value) : String('+') + String(value);
+  String sign = value < 0 ? String(value) : "+" + String(value);
   return sign.c_str();
 }
 

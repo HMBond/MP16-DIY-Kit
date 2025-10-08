@@ -75,7 +75,9 @@ void handleKeyChanges(int &screenIndex, int &menuIndex,
         }
       } else {
         shiftPressedAtKeyDown[i] = false;
-        padStates[i] = true;
+        if (!settings.mute) {
+          padStates[i] = true;
+        }
         selectedPad = i;
       }
 
@@ -93,12 +95,8 @@ void handleKeyChanges(int &screenIndex, int &menuIndex,
     // Key is released
     if (!keyStates[i] && previousKeyStates[i]) {
       if (!shiftPressedAtKeyDown[i]) {
-        for (int j = 0; j < 8; j++) {
-          if (pads[i].chord.isActive[j]) {
-            if (!midiStates[i]) {
-              padStates[i] = false;
-            }
-          }
+        if (!midiStates[i] && !settings.mute) {
+          padStates[i] = false;
         }
       }
     }

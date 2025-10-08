@@ -17,7 +17,7 @@ Secondly, the firmware is dependent on the following libraries.
 Install these through the Arduino IDE Library manager or using the GitHub repositories:
 
 - Adafruit TinyUSB Library (https://github.com/adafruit/Adafruit_TinyUSB_Arduino)
-- Adafruit Neopixel Library (https://github.com/adafruit/Adafruit_NeoPixel)
+- Adafruit NeoPixel Library (https://github.com/adafruit/Adafruit_NeoPixel)
 - Adafruit SSD1306 Library (https://github.com/adafruit/Adafruit_SSD1306) (this will also install the Adafruit GFX library when done through the library manager)
 - LittleFS_Mbed_RP2040 Library (https://github.com/khoih-prog/LittleFS_Mbed_RP2040)
 
