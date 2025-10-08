@@ -56,13 +56,13 @@ void updateMenu() {
     // muteMenu()
     break;
   case 4:
-    degreeMenu();
-    break;
-  case 5:
     randomVelocityMenu();
     break;
-  case 6:
+  case 5:
     // randomTimingMenu()
+    break;
+  case 6:
+    degreeMenu();
     break;
   case 7:
     noteActiveMenu();
