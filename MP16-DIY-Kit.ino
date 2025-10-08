@@ -10,7 +10,7 @@ const int copyMenuScreenIndex = 13;  // screen index for the copy menu
 int menuIndex = 0;                   // Which menu item is selected?
 bool editMenuItem = false;           // Edit the selected menu item
 int noteIndex = 0;                   // Selected note in menu
-float dimFactor = 0.3;               // Dim factor for NeoPixel LEDS
+float dimFactor = 0.5;               // Dim factor for NeoPixel LEDS
 
 void setup() {
   loadPreset();
