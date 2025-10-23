@@ -96,16 +96,17 @@ void updateMenu() {
 
 void loadMenu() {
   selectedSlot = readEncoder(selectedSlot, SLOT_COUNT);
+  drawLoadScreen(selectedSlot);
   if (encoderState && !previousEncoderState) {
     killAllNotes();
     screenIndex = -1;
     if (loadFromFlash(selectedSlot)) {
+      setAllNoteIntervals();
       drawMessage("Loaded Slot " + String(selectedSlot + 1));
     } else {
       drawMessage("Loading Failed");
     }
   }
-  drawLoadScreen(selectedSlot);
 }
 
 void mainMenu() {
@@ -187,7 +188,7 @@ void noteVelocityMenu() {
   } else if (menuIndex - 1 < CHORD_NOTE_COUNT) {
     if (encoderValue != 0) {
       killAllNotes();
-      int &velocityModifier =
+      int& velocityModifier =
           pads[selectedPad].chord.velocityModifiers[menuIndex - 1];
       velocityModifier = readEncoderFast(velocityModifier, 1, -127, 127);
     }
@@ -207,7 +208,7 @@ void noteOffsetMenu() {
   } else if (menuIndex - 1 < CHORD_NOTE_COUNT) {
     if (encoderValue != 0) {
       killAllNotes();
-      int &semitoneModifier =
+      int& semitoneModifier =
           pads[selectedPad].chord.semitoneModifiers[menuIndex - 1];
       semitoneModifier = readEncoderConstrained(semitoneModifier, 1, -7, 7);
     }
@@ -227,7 +228,7 @@ void noteOctavesMenu() {
   } else if (menuIndex - 1 < CHORD_NOTE_COUNT) {
     if (encoderValue != 0) {
       killAllNotes();
-      int &octaveModifier =
+      int& octaveModifier =
           pads[selectedPad].chord.octaveModifiers[menuIndex - 1];
       octaveModifier = readEncoderConstrained(octaveModifier, 1, -5, 5);
     }
@@ -327,16 +328,15 @@ void setAllNoteIntervals() {
 }
 
 void setNoteIntervals(int padIndex) {
-  for (int noteIndex = 0; noteIndex < 8; noteIndex++) {
-    if (noteIndex == 7)  // set 8th note to root
-    {
-      pads[padIndex].chord.intervals[noteIndex] = 0;
-    } else {
-      pads[padIndex].chord.intervals[noteIndex] =
-          getInterval(pads[padIndex].chord.degree + chordDegrees[noteIndex],
-                      scales[settings.scaleIndex], 7);
-    }
+  for (int noteIndex = 0; noteIndex < 7; noteIndex++) {
+    pads[padIndex].chord.intervals[noteIndex] =
+        getInterval(pads[padIndex].chord.degree + chordDegrees[noteIndex],
+                    scales[settings.scaleIndex], 7);
   }
+  // set 8th note to root
+  pads[padIndex].chord.intervals[7] =
+      getInterval(pads[padIndex].chord.degree + chordDegrees[0],
+                  scales[settings.scaleIndex], 7);
 }
 
 int getInterval(int degree, int scale[], int scaleLength) {
