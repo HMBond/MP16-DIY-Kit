@@ -13,16 +13,15 @@ int noteIndex = 0;                   // Selected note in menu
 float dimFactor = 0.5;               // Dim factor for NeoPixel LEDS
 
 void setup() {
-  loadPreset();
-  setAllNoteIntervals();
-  initHardware(settings);
-
-  pinMode(RX_PIN, INPUT_PULLUP);
-  Serial1.begin(31250);
-
+  initHardware();
   if (!LittleFS.begin()) {
     drawMessage("LittleFS failed");
   }
+  loadPreset();
+  setAllNoteIntervals();
+  pixels.setBrightness(settings.ledBrightness);
+  pinMode(RX_PIN, INPUT_PULLUP);
+  Serial1.begin(31250);
 }
 
 void loop() {
@@ -307,8 +306,7 @@ void midiMenu() {
 void saveMenu() {
   selectedSlot = readEncoder(selectedSlot, SLOT_COUNT);
   if (encoderState && !previousEncoderState) {
-    bool success = saveToFlash(selectedSlot);
-    if (success) {
+    if (saveToFlash(selectedSlot)) {
       screenIndex = -1;
       menuIndex = 0;
       String message = "Saved to Slot " + String(selectedSlot + 1);

@@ -27,7 +27,7 @@ extern volatile uint8_t data2;
 extern volatile MIDIState currentState;
 extern volatile bool midiMessageReady;
 
-void initHardware(Settings settings);
+void initHardware();
 void updateEncoder();
 void midiInterruptHandler();
 int readEncoder(int current, int itemCount);

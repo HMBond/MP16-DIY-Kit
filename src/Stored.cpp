@@ -45,8 +45,8 @@ bool loadFromFlash(int slot) {
   if (!file) {
     return false;
   } else {
-    file.read((uint8_t *)&settings, sizeof(Settings));
-    file.read((uint8_t *)&pads, sizeof(pads));
+    file.read((uint8_t*)&settings, sizeof(Settings));
+    file.read((uint8_t*)&pads, sizeof(pads));
     file.close();
     return true;
   }
@@ -58,11 +58,10 @@ bool saveToFlash(int slot) {
       "/slot" + String(slot) + ".txt";       // Use String for concatenation
   File file = LittleFS.open(filePath, "w");  // Pass the constructed file path
   if (!file) {
-    Serial.println("Failed to open file for writing");
     return false;
   }
-  file.write((uint8_t *)&settings, sizeof(settings));
-  file.write((uint8_t *)&pads, sizeof(pads));
+  file.write((uint8_t*)&settings, sizeof(settings));
+  file.write((uint8_t*)&pads, sizeof(pads));
   file.close();
   return true;
 }
